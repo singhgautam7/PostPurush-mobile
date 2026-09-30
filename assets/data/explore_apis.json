@@ -1,0 +1,1632 @@
+{
+ "version": 1,
+ "builtAt": "2026-09-30",
+ "apis": [
+  {
+   "name": "Open-Meteo",
+   "description": "Hourly forecasts, history and air quality for any coordinate",
+   "category": "Weather",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.open-meteo.com/v1",
+   "docsUrl": "https://open-meteo.com/en/docs",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m",
+     "description": "Hourly forecast for a coordinate"
+    },
+    {
+     "method": "get",
+     "path": "/air-quality?latitude=52.52&longitude=13.41",
+     "description": "Air quality for a coordinate"
+    }
+   ]
+  },
+  {
+   "name": "US Weather",
+   "description": "National Weather Service forecasts and alerts",
+   "category": "Weather",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.weather.gov",
+   "docsUrl": "https://www.weather.gov/documentation/services-web-api",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/points/39.7456,-97.0892",
+     "description": "Grid metadata for a point"
+    },
+    {
+     "method": "get",
+     "path": "/alerts/active?area=KS",
+     "description": "Active alerts for a state"
+    }
+   ]
+  },
+  {
+   "name": "Sunrise Sunset",
+   "description": "Sun times for a latitude and longitude",
+   "category": "Weather",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.sunrise-sunset.org",
+   "docsUrl": "https://sunrise-sunset.org/api",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/json?lat=36.72&lng=-4.42",
+     "description": "Sunrise and sunset for a coordinate"
+    }
+   ]
+  },
+  {
+   "name": "7Timer!",
+   "description": "Weather forecasts for astronomy and civil use",
+   "category": "Weather",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://www.7timer.info/bin",
+   "docsUrl": "https://www.7timer.info/doc.php",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/api.pl?lon=113.17&lat=23.09&product=astro&output=json",
+     "description": "Astronomy forecast"
+    }
+   ]
+  },
+  {
+   "name": "wttr.in",
+   "description": "Weather as text, JSON or a terminal picture",
+   "category": "Weather",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://wttr.in",
+   "docsUrl": "https://github.com/chubin/wttr.in",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/London?format=j1",
+     "description": "Current weather as JSON"
+    }
+   ]
+  },
+  {
+   "name": "PokeAPI",
+   "description": "Every Pokemon, move, type and ability",
+   "category": "Games and comics",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://pokeapi.co/api/v2",
+   "docsUrl": "https://pokeapi.co/docs/v2",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/pokemon/ditto",
+     "description": "One Pokemon by name"
+    },
+    {
+     "method": "get",
+     "path": "/type/water",
+     "description": "One type and what it affects"
+    }
+   ]
+  },
+  {
+   "name": "Open Trivia DB",
+   "description": "Trivia questions by category and difficulty",
+   "category": "Games and comics",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://opentdb.com",
+   "docsUrl": "https://opentdb.com/api_config.php",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/api.php?amount=10&type=multiple",
+     "description": "Ten multiple-choice questions"
+    }
+   ]
+  },
+  {
+   "name": "Deck of Cards",
+   "description": "Shuffle and deal from a virtual deck",
+   "category": "Games and comics",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://deckofcardsapi.com/api",
+   "docsUrl": "https://deckofcardsapi.com",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/deck/new/shuffle/?deck_count=1",
+     "description": "A new shuffled deck"
+    }
+   ]
+  },
+  {
+   "name": "Dungeons and Dragons 5e",
+   "description": "Spells, monsters, classes and equipment",
+   "category": "Games and comics",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://www.dnd5eapi.co/api",
+   "docsUrl": "https://www.dnd5eapi.co/docs",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/spells/fireball",
+     "description": "One spell"
+    },
+    {
+     "method": "get",
+     "path": "/monsters/adult-black-dragon",
+     "description": "One monster"
+    }
+   ]
+  },
+  {
+   "name": "xkcd",
+   "description": "The comic, its title text and its number",
+   "category": "Games and comics",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://xkcd.com",
+   "docsUrl": "https://xkcd.com/json.html",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/info.0.json",
+     "description": "The latest comic"
+    },
+    {
+     "method": "get",
+     "path": "/614/info.0.json",
+     "description": "One comic by number"
+    }
+   ]
+  },
+  {
+   "name": "Chuck Norris Jokes",
+   "description": "Jokes, by category or at random",
+   "category": "Games and comics",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.chucknorris.io",
+   "docsUrl": "https://api.chucknorris.io",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/jokes/random",
+     "description": "A random joke"
+    }
+   ]
+  },
+  {
+   "name": "Rick and Morty",
+   "description": "Characters, locations and episodes",
+   "category": "Games and comics",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://rickandmortyapi.com/api",
+   "docsUrl": "https://rickandmortyapi.com/documentation",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/character/2",
+     "description": "One character"
+    },
+    {
+     "method": "get",
+     "path": "/episode?name=pilot",
+     "description": "Search episodes"
+    }
+   ]
+  },
+  {
+   "name": "Cheap Shark",
+   "description": "Game prices across PC stores",
+   "category": "Games and comics",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://www.cheapshark.com/api/1.0",
+   "docsUrl": "https://apidocs.cheapshark.com",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/deals?storeID=1&upperPrice=15",
+     "description": "Current deals under a price"
+    }
+   ]
+  },
+  {
+   "name": "REST Countries",
+   "description": "Countries, currencies, languages and flags",
+   "category": "Open data",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://restcountries.com/v3.1",
+   "docsUrl": "https://restcountries.com",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/name/india",
+     "description": "A country by name"
+    },
+    {
+     "method": "get",
+     "path": "/currency/eur",
+     "description": "Countries using a currency"
+    }
+   ]
+  },
+  {
+   "name": "Open Library",
+   "description": "Books, editions, authors and covers",
+   "category": "Open data",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://openlibrary.org",
+   "docsUrl": "https://openlibrary.org/developers/api",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/search.json?q=the+lord+of+the+rings",
+     "description": "Search books"
+    },
+    {
+     "method": "get",
+     "path": "/isbn/9780140328721.json",
+     "description": "One edition by ISBN"
+    }
+   ]
+  },
+  {
+   "name": "Nominatim",
+   "description": "Search and reverse-geocode OpenStreetMap places",
+   "category": "Open data",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://nominatim.openstreetmap.org",
+   "docsUrl": "https://nominatim.org/release-docs/latest/api/Overview/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/search?q=Bengaluru&format=json",
+     "description": "Geocode a place name"
+    },
+    {
+     "method": "get",
+     "path": "/reverse?lat=12.97&lon=77.59&format=json",
+     "description": "Reverse-geocode a coordinate"
+    }
+   ]
+  },
+  {
+   "name": "Wikipedia",
+   "description": "Article summaries, search and media",
+   "category": "Open data",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://en.wikipedia.org/api/rest_v1",
+   "docsUrl": "https://en.wikipedia.org/api/rest_v1/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/page/summary/Kolkata",
+     "description": "A page summary"
+    }
+   ]
+  },
+  {
+   "name": "Universities",
+   "description": "Universities by country and name",
+   "category": "Open data",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "http://universities.hipolabs.com",
+   "docsUrl": "https://github.com/Hipo/university-domains-list",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/search?country=India",
+     "description": "Universities in a country"
+    }
+   ]
+  },
+  {
+   "name": "Zippopotam.us",
+   "description": "Places by postal code, and the other way round",
+   "category": "Open data",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.zippopotam.us",
+   "docsUrl": "https://api.zippopotam.us",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/us/33162",
+     "description": "A place by postal code"
+    }
+   ]
+  },
+  {
+   "name": "TVMaze",
+   "description": "Television shows, episodes and people",
+   "category": "Open data",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.tvmaze.com",
+   "docsUrl": "https://www.tvmaze.com/api",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/search/shows?q=girls",
+     "description": "Search shows"
+    },
+    {
+     "method": "get",
+     "path": "/shows/1",
+     "description": "One show"
+    }
+   ]
+  },
+  {
+   "name": "Datamuse",
+   "description": "Words that mean, rhyme or sound like",
+   "category": "Open data",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.datamuse.com",
+   "docsUrl": "https://www.datamuse.com/api/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/words?rel_rhy=forest",
+     "description": "Words that rhyme"
+    }
+   ]
+  },
+  {
+   "name": "Dictionary API",
+   "description": "Definitions, phonetics and examples",
+   "category": "Open data",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.dictionaryapi.dev/api/v2",
+   "docsUrl": "https://dictionaryapi.dev",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/entries/en/hello",
+     "description": "Define a word"
+    }
+   ]
+  },
+  {
+   "name": "NASA Open APIs",
+   "description": "Imagery, asteroids, Mars rovers and more",
+   "category": "Open data",
+   "auth": "apiKey",
+   "https": true,
+   "baseUrl": "https://api.nasa.gov",
+   "docsUrl": "https://api.nasa.gov",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/planetary/apod?api_key=DEMO_KEY",
+     "description": "Astronomy picture of the day"
+    }
+   ]
+  },
+  {
+   "name": "Open Notify",
+   "description": "Where the ISS is, and who is in space",
+   "category": "Open data",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "http://api.open-notify.org",
+   "docsUrl": "http://open-notify.org/Open-Notify-API/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/iss-now.json",
+     "description": "The ISS position now"
+    },
+    {
+     "method": "get",
+     "path": "/astros.json",
+     "description": "People currently in space"
+    }
+   ]
+  },
+  {
+   "name": "Numbers API",
+   "description": "Facts about numbers, dates and years",
+   "category": "Open data",
+   "auth": "none",
+   "https": false,
+   "baseUrl": "http://numbersapi.com",
+   "docsUrl": "http://numbersapi.com",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/42/trivia",
+     "description": "Trivia about a number"
+    }
+   ]
+  },
+  {
+   "name": "JSONPlaceholder",
+   "description": "A fake REST API for trying requests out",
+   "category": "Development",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://jsonplaceholder.typicode.com",
+   "docsUrl": "https://jsonplaceholder.typicode.com/guide/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/users",
+     "description": "List users"
+    },
+    {
+     "method": "post",
+     "path": "/posts",
+     "description": "Create a post"
+    },
+    {
+     "method": "put",
+     "path": "/posts/1",
+     "description": "Replace a post"
+    },
+    {
+     "method": "patch",
+     "path": "/posts/1",
+     "description": "Update part of a post"
+    },
+    {
+     "method": "delete",
+     "path": "/posts/1",
+     "description": "Remove a post"
+    }
+   ]
+  },
+  {
+   "name": "httpbin",
+   "description": "Echoes back whatever you send it",
+   "category": "Development",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://httpbin.org",
+   "docsUrl": "https://httpbin.org",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/get?a=1",
+     "description": "Echo a GET"
+    },
+    {
+     "method": "post",
+     "path": "/post",
+     "description": "Echo a POST"
+    },
+    {
+     "method": "get",
+     "path": "/status/500",
+     "description": "Return a chosen status"
+    },
+    {
+     "method": "get",
+     "path": "/delay/3",
+     "description": "Answer after a delay"
+    }
+   ]
+  },
+  {
+   "name": "Postman Echo",
+   "description": "Another echo service, with auth endpoints",
+   "category": "Development",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://postman-echo.com",
+   "docsUrl": "https://learning.postman.com/docs/developer/echo-api/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/get?foo=bar",
+     "description": "Echo a GET"
+    },
+    {
+     "method": "post",
+     "path": "/post",
+     "description": "Echo a POST"
+    }
+   ]
+  },
+  {
+   "name": "ReqRes",
+   "description": "A hosted REST API with users and login",
+   "category": "Development",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://reqres.in/api",
+   "docsUrl": "https://reqres.in",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/users?page=2",
+     "description": "A page of users"
+    },
+    {
+     "method": "post",
+     "path": "/login",
+     "description": "Log in and get a token"
+    }
+   ]
+  },
+  {
+   "name": "DummyJSON",
+   "description": "Products, carts, users and posts to test against",
+   "category": "Development",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://dummyjson.com",
+   "docsUrl": "https://dummyjson.com/docs",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/products?limit=10",
+     "description": "A page of products"
+    },
+    {
+     "method": "post",
+     "path": "/products/add",
+     "description": "Add a product"
+    }
+   ]
+  },
+  {
+   "name": "GitHub",
+   "description": "Repositories, users, issues and releases",
+   "category": "Development",
+   "auth": "oauth",
+   "https": true,
+   "baseUrl": "https://api.github.com",
+   "docsUrl": "https://docs.github.com/rest",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/repos/flutter/flutter",
+     "description": "One repository"
+    },
+    {
+     "method": "get",
+     "path": "/users/torvalds",
+     "description": "One user"
+    }
+   ]
+  },
+  {
+   "name": "Public APIs",
+   "description": "A directory of public APIs, as an API",
+   "category": "Development",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.publicapis.org",
+   "docsUrl": "https://github.com/davemachado/public-api",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/entries",
+     "description": "Every entry"
+    },
+    {
+     "method": "get",
+     "path": "/random",
+     "description": "One at random"
+    }
+   ]
+  },
+  {
+   "name": "IP API",
+   "description": "Geolocation and network details for an IP",
+   "category": "Development",
+   "auth": "none",
+   "https": false,
+   "baseUrl": "http://ip-api.com",
+   "docsUrl": "https://ip-api.com/docs",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/json",
+     "description": "Details for your own IP"
+    }
+   ]
+  },
+  {
+   "name": "ipify",
+   "description": "Your public IP address, and nothing else",
+   "category": "Development",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.ipify.org",
+   "docsUrl": "https://www.ipify.org",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/?format=json",
+     "description": "Your public IP"
+    }
+   ]
+  },
+  {
+   "name": "UUID Tools",
+   "description": "Generated UUIDs of any version",
+   "category": "Development",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://www.uuidtools.com/api",
+   "docsUrl": "https://www.uuidtools.com/api",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/generate/v4",
+     "description": "One v4 UUID"
+    }
+   ]
+  },
+  {
+   "name": "QR Code",
+   "description": "A QR code as a PNG for any text",
+   "category": "Development",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.qrserver.com/v1",
+   "docsUrl": "https://goqr.me/api/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/create-qr-code/?size=200x200&data=PostPurush",
+     "description": "A QR code image"
+    }
+   ]
+  },
+  {
+   "name": "Frankfurter",
+   "description": "Exchange rates from central banks",
+   "category": "Finance",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.frankfurter.app",
+   "docsUrl": "https://www.frankfurter.app/docs/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/latest?from=USD&to=INR",
+     "description": "Latest rate between two currencies"
+    },
+    {
+     "method": "get",
+     "path": "/2020-01-01..2020-01-31?from=EUR",
+     "description": "A range of daily rates"
+    }
+   ]
+  },
+  {
+   "name": "Exchange Rate API",
+   "description": "Currency conversion and historical rates",
+   "category": "Finance",
+   "auth": "apiKey",
+   "https": true,
+   "baseUrl": "https://v6.exchangerate-api.com/v6",
+   "docsUrl": "https://www.exchangerate-api.com/docs",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/YOUR-KEY/latest/USD",
+     "description": "Latest rates for a base"
+    }
+   ]
+  },
+  {
+   "name": "CoinGecko",
+   "description": "Cryptocurrency prices, markets and history",
+   "category": "Finance",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.coingecko.com/api/v3",
+   "docsUrl": "https://www.coingecko.com/en/api/documentation",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/simple/price?ids=bitcoin&vs_currencies=usd",
+     "description": "A price"
+    },
+    {
+     "method": "get",
+     "path": "/coins/markets?vs_currency=usd",
+     "description": "Market data"
+    }
+   ]
+  },
+  {
+   "name": "CoinCap",
+   "description": "Crypto assets, rates, exchanges and markets",
+   "category": "Finance",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.coincap.io/v2",
+   "docsUrl": "https://docs.coincap.io",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/assets",
+     "description": "Every asset"
+    },
+    {
+     "method": "get",
+     "path": "/assets/bitcoin",
+     "description": "One asset"
+    }
+   ]
+  },
+  {
+   "name": "Blockchain.com",
+   "description": "Bitcoin blocks, transactions and charts",
+   "category": "Finance",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://blockchain.info",
+   "docsUrl": "https://www.blockchain.com/explorer/api",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/ticker",
+     "description": "Bitcoin price in many currencies"
+    }
+   ]
+  },
+  {
+   "name": "Open Exchange Rates",
+   "description": "Rates for 200 currencies",
+   "category": "Finance",
+   "auth": "apiKey",
+   "https": true,
+   "baseUrl": "https://openexchangerates.org/api",
+   "docsUrl": "https://docs.openexchangerates.org",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/latest.json?app_id=YOUR-KEY",
+     "description": "Latest rates"
+    }
+   ]
+  },
+  {
+   "name": "The Cat API",
+   "description": "Cat pictures, breeds and facts",
+   "category": "Animals",
+   "auth": "apiKey",
+   "https": true,
+   "baseUrl": "https://api.thecatapi.com/v1",
+   "docsUrl": "https://docs.thecatapi.com",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/images/search",
+     "description": "A random cat"
+    }
+   ]
+  },
+  {
+   "name": "Dog CEO",
+   "description": "Dog pictures by breed",
+   "category": "Animals",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://dog.ceo/api",
+   "docsUrl": "https://dog.ceo/dog-api/documentation/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/breeds/image/random",
+     "description": "A random dog"
+    },
+    {
+     "method": "get",
+     "path": "/breeds/list/all",
+     "description": "Every breed"
+    }
+   ]
+  },
+  {
+   "name": "RandomFox",
+   "description": "Fox pictures",
+   "category": "Animals",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://randomfox.ca",
+   "docsUrl": "https://randomfox.ca",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/floof/",
+     "description": "A random fox"
+    }
+   ]
+  },
+  {
+   "name": "Cat Facts",
+   "description": "Facts about cats",
+   "category": "Animals",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://catfact.ninja",
+   "docsUrl": "https://catfact.ninja",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/fact",
+     "description": "One cat fact"
+    }
+   ]
+  },
+  {
+   "name": "FishWatch",
+   "description": "Sustainable seafood profiles from NOAA",
+   "category": "Animals",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://www.fishwatch.gov/api",
+   "docsUrl": "https://www.fishwatch.gov/developers",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/species",
+     "description": "Every species"
+    }
+   ]
+  },
+  {
+   "name": "TheMealDB",
+   "description": "Recipes, categories and ingredients",
+   "category": "Food and drink",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://www.themealdb.com/api/json/v1/1",
+   "docsUrl": "https://www.themealdb.com/api.php",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/search.php?s=arrabiata",
+     "description": "Search recipes"
+    },
+    {
+     "method": "get",
+     "path": "/random.php",
+     "description": "One at random"
+    }
+   ]
+  },
+  {
+   "name": "TheCocktailDB",
+   "description": "Cocktail recipes and ingredients",
+   "category": "Food and drink",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://www.thecocktaildb.com/api/json/v1/1",
+   "docsUrl": "https://www.thecocktaildb.com/api.php",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/search.php?s=margarita",
+     "description": "Search cocktails"
+    }
+   ]
+  },
+  {
+   "name": "Open Food Facts",
+   "description": "Food products, ingredients and nutrition",
+   "category": "Food and drink",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://world.openfoodfacts.org",
+   "docsUrl": "https://wiki.openfoodfacts.org/API",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/api/v2/product/737628064502.json",
+     "description": "One product by barcode"
+    }
+   ]
+  },
+  {
+   "name": "Open Brewery DB",
+   "description": "Breweries, cideries and brewpubs",
+   "category": "Food and drink",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.openbrewerydb.org/v1",
+   "docsUrl": "https://www.openbrewerydb.org/documentation",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/breweries?by_city=san_diego",
+     "description": "Breweries in a city"
+    }
+   ]
+  },
+  {
+   "name": "Quotable",
+   "description": "Quotations by author, tag or at random",
+   "category": "Books and quotes",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.quotable.io",
+   "docsUrl": "https://github.com/lukePeavey/quotable",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/random",
+     "description": "A random quotation"
+    },
+    {
+     "method": "get",
+     "path": "/quotes?author=Albert+Einstein",
+     "description": "Quotations by an author"
+    }
+   ]
+  },
+  {
+   "name": "Poetry DB",
+   "description": "Poems by author, title or line",
+   "category": "Books and quotes",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://poetrydb.org",
+   "docsUrl": "https://poetrydb.org",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/author/Emily%20Dickinson",
+     "description": "Poems by an author"
+    }
+   ]
+  },
+  {
+   "name": "Gutendex",
+   "description": "Project Gutenberg's catalogue",
+   "category": "Books and quotes",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://gutendex.com",
+   "docsUrl": "https://gutendex.com",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/books?search=dickens",
+     "description": "Search books"
+    }
+   ]
+  },
+  {
+   "name": "Bible API",
+   "description": "Bible passages as plain text or JSON",
+   "category": "Books and quotes",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://bible-api.com",
+   "docsUrl": "https://bible-api.com",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/john%203:16",
+     "description": "One passage"
+    }
+   ]
+  },
+  {
+   "name": "Lorem Picsum",
+   "description": "Placeholder photographs at any size",
+   "category": "Photography",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://picsum.photos",
+   "docsUrl": "https://picsum.photos",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/200/300",
+     "description": "A random photo at a size"
+    },
+    {
+     "method": "get",
+     "path": "/v2/list",
+     "description": "A page of photos"
+    }
+   ]
+  },
+  {
+   "name": "Unsplash",
+   "description": "Photographs, collections and search",
+   "category": "Photography",
+   "auth": "oauth",
+   "https": true,
+   "baseUrl": "https://api.unsplash.com",
+   "docsUrl": "https://unsplash.com/documentation",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/photos/random",
+     "description": "A random photo"
+    }
+   ]
+  },
+  {
+   "name": "Pexels",
+   "description": "Stock photographs and videos",
+   "category": "Photography",
+   "auth": "apiKey",
+   "https": true,
+   "baseUrl": "https://api.pexels.com/v1",
+   "docsUrl": "https://www.pexels.com/api/documentation/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/curated?per_page=10",
+     "description": "Curated photos"
+    }
+   ]
+  },
+  {
+   "name": "DiceBear",
+   "description": "Generated avatars as SVG or PNG",
+   "category": "Photography",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.dicebear.com/7.x",
+   "docsUrl": "https://www.dicebear.com/how-to-use/http-api/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/identicon/svg?seed=postpurush",
+     "description": "An avatar for a seed"
+    }
+   ]
+  },
+  {
+   "name": "Nager.Date",
+   "description": "Public holidays for any country and year",
+   "category": "Calendar",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://date.nager.at/api/v3",
+   "docsUrl": "https://date.nager.at/swagger",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/PublicHolidays/2026/IN",
+     "description": "Public holidays for a country"
+    }
+   ]
+  },
+  {
+   "name": "WorldTimeAPI",
+   "description": "The current time in any timezone",
+   "category": "Calendar",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://worldtimeapi.org/api",
+   "docsUrl": "http://worldtimeapi.org/pages/schema",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/timezone/Asia/Kolkata",
+     "description": "Time in a timezone"
+    },
+    {
+     "method": "get",
+     "path": "/ip",
+     "description": "Time where you are"
+    }
+   ]
+  },
+  {
+   "name": "TimeAPI",
+   "description": "Time, timezones and conversions",
+   "category": "Calendar",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://timeapi.io/api",
+   "docsUrl": "https://timeapi.io/swagger/index.html",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/Time/current/zone?timeZone=Europe/Amsterdam",
+     "description": "Current time in a zone"
+    }
+   ]
+  },
+  {
+   "name": "Agify",
+   "description": "Guesses an age from a first name",
+   "category": "Machine learning",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.agify.io",
+   "docsUrl": "https://agify.io",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/?name=meelad",
+     "description": "Guess an age"
+    }
+   ]
+  },
+  {
+   "name": "Genderize",
+   "description": "Guesses a gender from a first name",
+   "category": "Machine learning",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.genderize.io",
+   "docsUrl": "https://genderize.io",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/?name=luc",
+     "description": "Guess a gender"
+    }
+   ]
+  },
+  {
+   "name": "Nationalize",
+   "description": "Guesses a nationality from a name",
+   "category": "Machine learning",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.nationalize.io",
+   "docsUrl": "https://nationalize.io",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/?name=nathaniel",
+     "description": "Guess a nationality"
+    }
+   ]
+  },
+  {
+   "name": "Spotify",
+   "description": "Tracks, albums, artists and playlists",
+   "category": "Music",
+   "auth": "oauth",
+   "https": true,
+   "baseUrl": "https://api.spotify.com/v1",
+   "docsUrl": "https://developer.spotify.com/documentation/web-api",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/search?q=radiohead&type=artist",
+     "description": "Search artists"
+    }
+   ]
+  },
+  {
+   "name": "MusicBrainz",
+   "description": "Open music metadata",
+   "category": "Music",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://musicbrainz.org/ws/2",
+   "docsUrl": "https://musicbrainz.org/doc/MusicBrainz_API",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/artist/?query=nirvana&fmt=json",
+     "description": "Search artists"
+    }
+   ]
+  },
+  {
+   "name": "Deezer",
+   "description": "Tracks, albums, artists and charts",
+   "category": "Music",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.deezer.com",
+   "docsUrl": "https://developers.deezer.com/api",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/search?q=eminem",
+     "description": "Search tracks"
+    }
+   ]
+  },
+  {
+   "name": "Lyrics.ovh",
+   "description": "Song lyrics by artist and title",
+   "category": "Music",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.lyrics.ovh/v1",
+   "docsUrl": "https://lyricsovh.docs.apiary.io",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/coldplay/yellow",
+     "description": "Lyrics for a song"
+    }
+   ]
+  },
+  {
+   "name": "Bored API",
+   "description": "Something to do when you have nothing to do",
+   "category": "Personal",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://www.boredapi.com/api",
+   "docsUrl": "https://www.boredapi.com/documentation",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/activity",
+     "description": "One activity"
+    }
+   ]
+  },
+  {
+   "name": "Advice Slip",
+   "description": "One piece of advice at a time",
+   "category": "Personal",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.adviceslip.com",
+   "docsUrl": "https://api.adviceslip.com/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/advice",
+     "description": "A random slip"
+    }
+   ]
+  },
+  {
+   "name": "Kanye REST",
+   "description": "A Kanye West quote",
+   "category": "Personal",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.kanye.rest",
+   "docsUrl": "https://kanye.rest",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/",
+     "description": "One quote"
+    }
+   ]
+  },
+  {
+   "name": "Zen Quotes",
+   "description": "Inspirational quotations",
+   "category": "Personal",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://zenquotes.io/api",
+   "docsUrl": "https://docs.zenquotes.io",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/random",
+     "description": "A random quotation"
+    }
+   ]
+  },
+  {
+   "name": "SpaceX (r/SpaceX)",
+   "description": "Launches, rockets, capsules and cores",
+   "category": "Science",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.spacexdata.com/v4",
+   "docsUrl": "https://github.com/r-spacex/SpaceX-API",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/launches/latest",
+     "description": "The latest launch"
+    },
+    {
+     "method": "get",
+     "path": "/rockets",
+     "description": "Every rocket"
+    }
+   ]
+  },
+  {
+   "name": "Launch Library 2",
+   "description": "Rocket launches, past and upcoming",
+   "category": "Science",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://ll.thespacedevs.com/2.2.0",
+   "docsUrl": "https://ll.thespacedevs.com/2.2.0/swagger",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/launch/upcoming/?limit=5",
+     "description": "Upcoming launches"
+    }
+   ]
+  },
+  {
+   "name": "USGS Earthquakes",
+   "description": "Earthquake feeds and queries",
+   "category": "Science",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://earthquake.usgs.gov/fdsnws/event/1",
+   "docsUrl": "https://earthquake.usgs.gov/fdsnws/event/1/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/query?format=geojson&limit=10",
+     "description": "The ten most recent events"
+    }
+   ]
+  },
+  {
+   "name": "Periodic Table",
+   "description": "Elements and their properties",
+   "category": "Science",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://periodic-table-api.herokuapp.com",
+   "docsUrl": "https://github.com/Bhanuprakash-Reddy/periodic-table-api",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/",
+     "description": "Every element"
+    }
+   ]
+  },
+  {
+   "name": "disease.sh",
+   "description": "COVID-19 and influenza statistics",
+   "category": "Health",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://disease.sh/v3",
+   "docsUrl": "https://disease.sh/docs/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/covid-19/all",
+     "description": "Global totals"
+    },
+    {
+     "method": "get",
+     "path": "/covid-19/countries/india",
+     "description": "One country"
+    }
+   ]
+  },
+  {
+   "name": "openFDA",
+   "description": "Drug, device and food data from the FDA",
+   "category": "Health",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.fda.gov",
+   "docsUrl": "https://open.fda.gov/apis/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/drug/event.json?limit=1",
+     "description": "One adverse-event record"
+    }
+   ]
+  },
+  {
+   "name": "Nutritionix",
+   "description": "Nutrition for natural-language food text",
+   "category": "Health",
+   "auth": "apiKey",
+   "https": true,
+   "baseUrl": "https://trackapi.nutritionix.com/v2",
+   "docsUrl": "https://docs.nutritionix.com",
+   "samples": [
+    {
+     "method": "post",
+     "path": "/natural/nutrients",
+     "description": "Nutrition for a sentence"
+    }
+   ]
+  },
+  {
+   "name": "Transport for London",
+   "description": "Lines, stops, arrivals and journeys",
+   "category": "Transport",
+   "auth": "apiKey",
+   "https": true,
+   "baseUrl": "https://api.tfl.gov.uk",
+   "docsUrl": "https://api-portal.tfl.gov.uk",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/Line/Mode/tube/Status",
+     "description": "Tube line status"
+    }
+   ]
+  },
+  {
+   "name": "OpenSky Network",
+   "description": "Live aircraft positions",
+   "category": "Transport",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://opensky-network.org/api",
+   "docsUrl": "https://openskynetwork.github.io/opensky-api/rest.html",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/states/all",
+     "description": "Every aircraft now"
+    }
+   ]
+  },
+  {
+   "name": "Amtrak",
+   "description": "Train status across the United States",
+   "category": "Transport",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api-v3.amtraker.com/v3",
+   "docsUrl": "https://github.com/piemadd/amtrak",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/trains",
+     "description": "Every train now"
+    }
+   ]
+  },
+  {
+   "name": "Open Notify Passes",
+   "description": "When the ISS will pass overhead",
+   "category": "Space",
+   "auth": "none",
+   "https": false,
+   "baseUrl": "http://api.open-notify.org",
+   "docsUrl": "http://open-notify.org/Open-Notify-API/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/iss-pass.json?lat=45&lon=-122",
+     "description": "Upcoming passes"
+    }
+   ]
+  },
+  {
+   "name": "Solar System OpenData",
+   "description": "Planets, moons and their orbits",
+   "category": "Space",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.le-systeme-solaire.net/rest",
+   "docsUrl": "https://api.le-systeme-solaire.net/en/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/bodies/mars",
+     "description": "One body"
+    }
+   ]
+  },
+  {
+   "name": "Currents API",
+   "description": "News headlines by language and category",
+   "category": "News",
+   "auth": "apiKey",
+   "https": true,
+   "baseUrl": "https://api.currentsapi.services/v1",
+   "docsUrl": "https://currentsapi.services/en/docs/",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/latest-news?apiKey=YOUR-KEY",
+     "description": "Latest headlines"
+    }
+   ]
+  },
+  {
+   "name": "Hacker News",
+   "description": "Stories, comments and users",
+   "category": "News",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://hacker-news.firebaseio.com/v0",
+   "docsUrl": "https://github.com/HackerNews/API",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/topstories.json",
+     "description": "Top story ids"
+    },
+    {
+     "method": "get",
+     "path": "/item/8863.json",
+     "description": "One item"
+    }
+   ]
+  },
+  {
+   "name": "Spaceflight News",
+   "description": "Space news articles, blogs and reports",
+   "category": "News",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.spaceflightnewsapi.net/v4",
+   "docsUrl": "https://api.spaceflightnewsapi.net/v4/documentation",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/articles?limit=10",
+     "description": "Recent articles"
+    }
+   ]
+  },
+  {
+   "name": "Open-Meteo Geocoding",
+   "description": "Place names to coordinates",
+   "category": "Geocoding",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://geocoding-api.open-meteo.com/v1",
+   "docsUrl": "https://open-meteo.com/en/docs/geocoding-api",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/search?name=Berlin",
+     "description": "Search places"
+    }
+   ]
+  },
+  {
+   "name": "BigDataCloud",
+   "description": "Reverse geocoding and IP intelligence",
+   "category": "Geocoding",
+   "auth": "apiKey",
+   "https": true,
+   "baseUrl": "https://api.bigdatacloud.net/data",
+   "docsUrl": "https://www.bigdatacloud.com/docs",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/reverse-geocode-client?latitude=51.5&longitude=-0.12",
+     "description": "Reverse-geocode a coordinate"
+    }
+   ]
+  },
+  {
+   "name": "Postcodes.io",
+   "description": "UK postcode lookup and validation",
+   "category": "Geocoding",
+   "auth": "none",
+   "https": true,
+   "baseUrl": "https://api.postcodes.io",
+   "docsUrl": "https://postcodes.io/docs",
+   "samples": [
+    {
+     "method": "get",
+     "path": "/postcodes/SW1A2AA",
+     "description": "One postcode"
+    }
+   ]
+  }
+ ]
+}

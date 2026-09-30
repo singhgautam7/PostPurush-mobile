@@ -1,0 +1,82 @@
+name: postpurush
+description: "PostPurush, a local-first API client."
+publish_to: 'none'
+version: 1.0.0+100
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  dio: ^5.11.1
+  drift: ^2.35.0
+  drift_flutter: ^0.3.1
+  dynamic_color: ^2.1.0
+  file_picker: ^13.1.0
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  freezed_annotation: ^3.1.0
+  go_router: ^18.0.2
+  json_annotation: ^4.12.0
+  path: ^1.9.1
+  path_provider: ^2.1.6
+  pdf: ^3.13.1
+  printing: ^5.15.1
+  share_plus: ^13.3.0
+  shared_preferences: ^2.5.5
+  sqlite3: ^3.6.0
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.16.1
+  drift_dev: ^2.35.0
+  freezed: ^4.0.2
+  json_serializable: ^6.14.1
+  flutter_native_splash: ^2.4.8
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # The bundled public-APIs catalogue, so Explore works offline. Rebuilt
+    # deliberately by tool/build_explore_dataset.dart, never edited by hand.
+    - assets/data/explore_apis.json
+
+  fonts:
+    # Bundled, not fetched: PostPurush makes no request the user did not send.
+    # Instrument Sans ships variable-only, so weights are applied through
+    # fontVariations in core/theme/typography.dart.
+    - family: Instrument Sans
+      fonts:
+        - asset: assets/fonts/InstrumentSans-Variable.ttf
+        - asset: assets/fonts/InstrumentSans-Italic-Variable.ttf
+          style: italic
+
+# The launcher icon is the icon board's own vector drawable, copied verbatim
+# into `android/app/src/main/res/`: an adaptive icon with a monochrome layer for
+# Android 13's themed icons. `flutter_launcher_icons` is deliberately not used,
+# because it would replace that vector with rasterised PNGs and lose the themed
+# layer. The legacy PNGs for Android before adaptive icons, the store listing
+# and the splash art come from `flutter test tool/generate_icons_test.dart`.
+
+flutter_native_splash:
+  # The pista ground of the icon itself, so the splash reads as the launcher
+  # icon holding still rather than as a different screen.
+  color: "#CCE6CC"
+  color_dark: "#CCE6CC"
+  image: assets/icon/splash.png
+  android_12:
+    # Android 12 masks its splash icon to a circle and shows only the middle of
+    # it, so this art is the glyph alone on transparent and the ground is the
+    # colour below. Passing the whole icon here gets it cropped.
+    image: assets/icon/splash_android12.png
+    icon_background_color: "#CCE6CC"
+    icon_background_color_dark: "#CCE6CC"
+    color: "#CCE6CC"
+    color_dark: "#CCE6CC"
+  android: true
+  ios: false
+  web: false
