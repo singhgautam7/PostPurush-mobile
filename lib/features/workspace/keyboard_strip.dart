@@ -188,6 +188,8 @@ class _Suggestions extends StatelessWidget {
                 ),
               if (query.prefix.isNotEmpty && env != null)
                 InkWell(
+                  // The Android click sound belongs to the system, not to a tool.
+                  enableFeedback: false,
                   onTap: onCreate,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -242,6 +244,8 @@ class _SuggestionRow extends StatelessWidget {
     // The typed prefix is shown quiet and the rest in full, so you can see what
     // you are about to accept. A secret's value is never shown here.
     return InkWell(
+      // The Android click sound belongs to the system, not to a tool.
+      enableFeedback: false,
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -347,6 +351,8 @@ class _Keys extends StatelessWidget {
                 button: true,
                 label: 'Hide the keyboard',
                 child: InkWell(
+                  // The Android click sound belongs to the system, not to a tool.
+                  enableFeedback: false,
                   onTap: () =>
                       SystemChannels.textInput.invokeMethod<void>('TextInput.hide'),
                   borderRadius: Radii.fullR,
@@ -389,6 +395,8 @@ class _Key extends StatelessWidget {
             borderRadius: Radii.thumbR,
             clipBehavior: Clip.antiAlias,
             child: InkWell(
+              // The Android click sound belongs to the system, not to a tool.
+              enableFeedback: false,
               onTap: onTap,
               child: SizedBox(
                 width: wide ? 64 : 44,

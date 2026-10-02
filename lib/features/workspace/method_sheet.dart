@@ -52,6 +52,8 @@ class _MethodGroup extends StatelessWidget {
             selected: m == current,
             label: '${m.label}, ${m.blurb}',
             child: InkWell(
+              // The Android click sound belongs to the system, not to a tool.
+              enableFeedback: false,
               onTap: () => Navigator.of(context).pop(m),
               child: Container(
                 color: m == current ? c.primaryContainer : null,

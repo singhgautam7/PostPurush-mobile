@@ -33,10 +33,10 @@ Future<SaveTarget?> showSaveRequestSheet(
   WidgetRef ref, {
   required ApiRequest request,
 }) async {
-  final List<Folder> folders = ref.read(foldersProvider).value ??
-      const <Folder>[];
-  final List<ApiRequest> requests = ref.read(requestsProvider).value ??
-      const <ApiRequest>[];
+  final List<Folder> folders =
+      ref.read(foldersProvider).value ?? const <Folder>[];
+  final List<ApiRequest> requests =
+      ref.read(requestsProvider).value ?? const <ApiRequest>[];
   final String? lastFolder = await ref
       .read(appStateRepositoryProvider)
       .read(StateKeys.lastFolder);
@@ -117,6 +117,7 @@ class _SaveFormState extends ConsumerState<_SaveForm> {
   Widget build(BuildContext context) {
     final AppColors c = context.colors;
     final List<Folder> tree = _flatten(widget.folders);
+    final FolderIndex index = FolderIndex.of(widget.folders, widget.requests);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 14,
@@ -140,7 +141,7 @@ class _SaveFormState extends ConsumerState<_SaveForm> {
           children: <Widget>[
             AppRow(
               title: 'No folder',
-              subtitle: 'top level of Collections',
+              subtitle: 'top level of Folders',
               leading: Icon(
                 Icons.home_rounded,
                 size: IconSpec.size,
@@ -153,7 +154,7 @@ class _SaveFormState extends ConsumerState<_SaveForm> {
             for (final Folder f in tree)
               AppRow(
                 title: f.name,
-                count: '${CollectionsRepository.countIn(f.id, widget.folders, widget.requests)}',
+                count: '${index.totalIn(f.id)}',
                 indent: _depthOf(f, widget.folders) * Space.xl,
                 leading: Icon(
                   _depthOf(f, widget.folders) == 0
@@ -190,12 +191,17 @@ class _SaveFormState extends ConsumerState<_SaveForm> {
                 flex: 2,
                 child: ValueListenableBuilder<TextEditingValue>(
                   valueListenable: _name,
-                  builder: (BuildContext context, TextEditingValue value, Widget? _) => AppButton(
-                    label: 'Save',
-                    icon: Icons.save_rounded,
-                    onPressed: value.text.trim().isEmpty ? null : _submit,
-                    fullWidth: true,
-                  ),
+                  builder:
+                      (
+                        BuildContext context,
+                        TextEditingValue value,
+                        Widget? _,
+                      ) => AppButton(
+                        label: 'Save',
+                        icon: Icons.save_rounded,
+                        onPressed: value.text.trim().isEmpty ? null : _submit,
+                        fullWidth: true,
+                      ),
                 ),
               ),
             ],
@@ -206,7 +212,11 @@ class _SaveFormState extends ConsumerState<_SaveForm> {
   }
 
   /// Parents before their children, so the indent reads as a tree.
-  static List<Folder> _flatten(List<Folder> folders, [String? parent, int depth = 0]) {
+  static List<Folder> _flatten(
+    List<Folder> folders, [
+    String? parent,
+    int depth = 0,
+  ]) {
     if (depth > 8) return const <Folder>[];
     final List<Folder> out = <Folder>[];
     for (final Folder f in folders) {

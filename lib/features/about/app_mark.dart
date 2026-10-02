@@ -52,7 +52,9 @@ class AppMark extends StatelessWidget {
                 : const AppMarkPainter(),
       ),
     );
-    if (!_themed) return mark;
+    // Always rounded: the mark carries its own pista background, and a hard
+    // square of it beside the app name reads as an unfinished asset. The
+    // radius is the launcher's, scaled to whatever size is asked for.
     return ClipRRect(
       borderRadius: BorderRadius.circular(size * 0.26),
       child: mark,

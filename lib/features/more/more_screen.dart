@@ -12,6 +12,7 @@ import '../../core/theme/palette.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/theme/typography.dart';
 import '../../core/util/format.dart';
+import '../../core/util/platform_surfaces.dart';
 import '../../core/widgets/app_header.dart';
 import '../../core/widgets/cards.dart';
 import '../../core/widgets/section_header.dart';
@@ -83,12 +84,12 @@ class MoreScreen extends ConsumerWidget {
                           icon: Icons.description_outlined,
                           label: 'API docs',
                           value: folders.isEmpty
-                              ? 'no collections'
+                              ? 'no folders'
                               : Fmt.count(
                                   folders
                                       .where((Folder f) => f.parentId == null)
                                       .length,
-                                  'collection',
+                                  'folder',
                                 ),
                           onTap: () => context.push(Routes.apiDocs),
                         ),
@@ -128,9 +129,17 @@ class MoreScreen extends ConsumerWidget {
                           onTap: () => context.push(Routes.privacy),
                         ),
                         _Row(
+                          icon: Icons.lock_outline_rounded,
+                          label: 'Permissions',
+                          value: 'Internet only',
+                          onTap: () => context.push(Routes.permissions),
+                        ),
+                        _Row(
                           icon: Icons.info_outline_rounded,
                           label: 'About',
-                          value: 'v${AboutInfo.version}',
+                          value:
+                              ref.watch(appVersionProvider).value?.name ??
+                              AboutInfo.fallbackVersion,
                           onTap: () => context.push(Routes.about),
                         ),
                       ],
@@ -206,9 +215,17 @@ class _Row extends StatelessWidget {
   }
 }
 
-/// The one place the version lives, so About and More agree.
+/// The links About and More share, and the version to print when Android has
+/// not answered yet.
+///
+/// The real version comes from the package through
+/// [PlatformSurfaces.appVersion]; this string is what a widget test and the
+/// first frame show, never the number of record.
 abstract final class AboutInfo {
-  static const String version = '1.0.0';
-  static const String build = '100';
-  static const String repository = 'https://github.com/grs/postpurush';
+  static const String fallbackVersion = 'v1.0.0';
+  static const String portfolio = 'https://singhgautam.com';
+  static const String moreApps =
+      'https://play.google.com/store/apps/developer?id=Gautam+Rajeev+Singh';
+  static const String listing =
+      'https://play.google.com/store/apps/details?id=com.grs.postpurush';
 }

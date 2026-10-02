@@ -171,6 +171,8 @@ class InlineError extends StatelessWidget {
               button: true,
               label: actionLabel,
               child: InkWell(
+                // The Android click sound belongs to the system, not to a tool.
+                enableFeedback: false,
                 onTap: onAction,
                 borderRadius: Radii.fullR,
                 child: Container(

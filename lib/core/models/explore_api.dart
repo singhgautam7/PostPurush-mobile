@@ -44,7 +44,7 @@ abstract class ApiSample with _$ApiSample {
 }
 
 /// A row of the bundled public-APIs catalogue. Read-only: the asset is built
-/// once by `tool/build_explore_dataset.dart` and shipped, so Explore works
+/// by hand as `assets/data/explore_apis.json` and shipped, so Explore works
 /// offline and costs nothing at runtime beyond one decode.
 @freezed
 abstract class ExploreApi with _$ExploreApi {

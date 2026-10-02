@@ -597,7 +597,7 @@ class _TargetCard extends StatelessWidget {
                   style: AppType.titleMedium.copyWith(color: c.onSurface),
                 ),
                 Text(
-                  request.url.replaceFirst(RegExp('^https?://'), ''),
+                  Fmt.bareUrl(request.url),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppType.monoLabel.copyWith(
@@ -692,6 +692,8 @@ class _AssertionRow extends StatelessWidget {
     final bool failed = result != null && !result!.passed;
     final Color body = failed ? c.onDangerContainer : c.onSurface;
     return InkWell(
+      // The Android click sound belongs to the system, not to a tool.
+      enableFeedback: false,
       onTap: onEdit,
       child: Container(
         color: failed ? c.dangerContainer : null,

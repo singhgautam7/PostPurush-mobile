@@ -38,6 +38,8 @@ class EnvironmentChip extends ConsumerWidget {
           shape: StadiumBorder(side: BorderSide(color: c.outline)),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
+            // The Android click sound belongs to the system, not to a tool.
+            enableFeedback: false,
             onTap: () => _open(anchor, ref),
             child: Container(
               height: 40,

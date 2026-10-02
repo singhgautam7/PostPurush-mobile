@@ -17,7 +17,7 @@ import '../settings/settings_controller.dart';
 
 /// The welcome board's three-step flow: what it is, what it does, pick a look.
 ///
-/// Shown once. Skip on every step goes straight to Collections, so nobody is
+/// Shown once. Skip on every step goes straight to Folders, so nobody is
 /// held up, and the flag is written on the way out either way.
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -293,7 +293,7 @@ class _StepBodyState extends State<_StepBody>
       ),
       (
         Icons.folder_open_rounded,
-        'Collections and environments',
+        'Folders and environments',
         'Folders, plus variables per environment',
       ),
       (
@@ -314,7 +314,7 @@ class _StepBodyState extends State<_StepBody>
       (
         Icons.description_outlined,
         'API docs',
-        'Generated from a collection, export as PDF',
+        'Generated from a folder, export as PDF',
       ),
     ];
     return <Widget>[
@@ -495,6 +495,8 @@ class _Swatch extends StatelessWidget {
       selected: selected,
       label: label,
       child: InkWell(
+        // The Android click sound belongs to the system, not to a tool.
+        enableFeedback: false,
         onTap: onTap,
         borderRadius: Radii.cardR,
         child: SizedBox(
@@ -566,6 +568,8 @@ class _ModeRow extends ConsumerWidget {
               button: true,
               selected: s.themeMode == mode,
               child: InkWell(
+                // The Android click sound belongs to the system, not to a tool.
+                enableFeedback: false,
                 onTap: () =>
                     ref.read(settingsProvider.notifier).setThemeMode(mode),
                 borderRadius: Radii.cardR,

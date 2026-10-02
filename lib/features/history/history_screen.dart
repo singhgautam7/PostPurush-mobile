@@ -278,7 +278,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           context,
           title: 'Clear history?',
           message:
-              'Every entry goes. Saved requests and collections are not '
+              'Every entry goes. Saved requests and folders are not '
               'touched.',
           confirmLabel: 'Clear',
         );
@@ -392,6 +392,8 @@ class HistoryRow extends StatelessWidget {
       arrived: entry.failure == null,
     );
     return InkWell(
+      // The Android click sound belongs to the system, not to a tool.
+      enableFeedback: false,
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.only(left: Space.lg, right: Space.xs),

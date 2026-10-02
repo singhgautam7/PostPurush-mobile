@@ -7,15 +7,16 @@ import '../theme/tokens.dart';
 /// Back, save, code, overflow, close, resend: every icon action is this
 /// button. One place decides the hit area, the shape, the fill and the tint.
 ///
-/// The board draws it at 48dp on a `surfaceContainerHigh` circle with a 24dp
-/// glyph in `icon`, and that is the default here.
+/// A 40dp `surfaceContainerHigh` circle with a 20dp glyph in `icon`, centred
+/// in a 48dp tap target: the visual is Mull's, and the target stays at the
+/// minimum whatever the disc does.
 class AppIconButton extends StatelessWidget {
   const AppIconButton({
     required this.icon,
     required this.onPressed,
     required this.semanticLabel,
-    this.size = IconSpec.tapTarget,
-    this.glyphSize = IconSpec.size,
+    this.size = IconSpec.button,
+    this.glyphSize = IconSpec.small,
     this.filled = true,
     this.active = false,
     this.tint,
@@ -74,6 +75,8 @@ class AppIconButton extends StatelessWidget {
                 shape: const CircleBorder(),
                 clipBehavior: Clip.antiAlias,
                 child: InkWell(
+                  // The Android click sound belongs to the system, not to a tool.
+                  enableFeedback: false,
                   onTap: onPressed,
                   child: SizedBox(
                     width: size,

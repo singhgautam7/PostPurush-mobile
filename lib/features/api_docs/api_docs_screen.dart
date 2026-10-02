@@ -25,12 +25,14 @@ class ApiDocsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppColors c = context.colors;
-    final List<Folder> folders = ref.watch(foldersProvider).value ??
-        const <Folder>[];
-    final List<ApiRequest> requests = ref.watch(requestsProvider).value ??
-        const <ApiRequest>[];
+    final List<Folder> folders =
+        ref.watch(foldersProvider).value ?? const <Folder>[];
+    final List<ApiRequest> requests =
+        ref.watch(requestsProvider).value ?? const <ApiRequest>[];
+    final FolderIndex index = FolderIndex.of(folders, requests);
     final List<Folder> top = <Folder>[
-      for (final Folder f in folders) if (f.parentId == null) f,
+      for (final Folder f in folders)
+        if (f.parentId == null) f,
     ];
 
     if (top.isEmpty) {
@@ -44,9 +46,9 @@ class ApiDocsScreen extends ConsumerWidget {
               const Expanded(
                 child: EmptyState(
                   icon: Icons.description_outlined,
-                  title: 'No collections',
+                  title: 'No folders',
                   message:
-                      'Docs are generated from a collection, so make one and '
+                      'Docs are generated from a folder, so make one and '
                       'save a few requests into it first.',
                 ),
               ),
@@ -69,18 +71,14 @@ class ApiDocsScreen extends ConsumerWidget {
           child: Row(
             spacing: Space.md,
             children: <Widget>[
-              Icon(
-                Icons.description_outlined,
-                size: 32,
-                color: c.iconMuted,
-              ),
+              Icon(Icons.description_outlined, size: 32, color: c.iconMuted),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: Space.xs,
                   children: <Widget>[
                     Text(
-                      'Pick a collection to generate docs.',
+                      'Pick a folder to generate docs.',
                       style: AppType.titleMedium.copyWith(color: c.onSurface),
                     ),
                     Text(
@@ -97,17 +95,14 @@ class ApiDocsScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: Space.section),
-        SectionHeader(label: 'Collections · ${top.length}'),
+        SectionHeader(label: 'Folders · ${top.length}'),
         const SizedBox(height: Space.row),
         RowGroup(
           children: <Widget>[
             for (final Folder folder in top)
               AppRow(
                 title: folder.name,
-                subtitle: Fmt.count(
-                  CollectionsRepository.countIn(folder.id, folders, requests),
-                  'request',
-                ),
+                subtitle: Fmt.count(index.totalIn(folder.id), 'request'),
                 minHeight: 60,
                 leading: Icon(
                   Icons.folder_rounded,

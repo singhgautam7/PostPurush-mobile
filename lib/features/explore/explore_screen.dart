@@ -62,10 +62,12 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     );
     final List<ExploreApi> all = apis.value ?? const <ExploreApi>[];
     final List<ExploreApi> matching = <ExploreApi>[
-      for (final ExploreApi api in all) if (filters.accepts(api)) api,
+      for (final ExploreApi api in all)
+        if (filters.accepts(api)) api,
     ];
     final List<ExploreApi> ready = <ExploreApi>[
-      for (final ExploreApi api in matching) if (api.readyToCall) api,
+      for (final ExploreApi api in matching)
+        if (api.readyToCall) api,
     ];
 
     return Scaffold(
@@ -117,31 +119,33 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         ),
                       )
                     : apis.hasError
-                        ? ErrorStateView(
-                            message:
-                                'The bundled catalogue could not be read.',
-                            onRetry: () => ref.invalidate(exploreApisProvider),
-                          )
-                        : matching.isEmpty
-                            ? _NoResults(
-                                filters: filters,
-                                all: all,
-                                onClearSearch: () {
-                                  _search.clear();
-                                  ref
-                                      .read(exploreFiltersProvider.notifier)
-                                      .setQuery('');
-                                },
-                              )
-                            : ListView(
-                                padding: const EdgeInsets.fromLTRB(
-                                  Space.screen,
-                                  0,
-                                  Space.screen,
-                                  Space.bottomSafe,
-                                ),
+                    ? ErrorStateView(
+                        message: 'The bundled catalogue could not be read.',
+                        onRetry: () => ref.invalidate(exploreApisProvider),
+                      )
+                    : matching.isEmpty
+                    ? _NoResults(
+                        filters: filters,
+                        all: all,
+                        onClearSearch: () {
+                          _search.clear();
+                          ref
+                              .read(exploreFiltersProvider.notifier)
+                              .setQuery('');
+                        },
+                      )
+                    : CustomScrollView(
+                        slivers: <Widget>[
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Space.screen,
+                            ),
+                            sliver: SliverToBoxAdapter(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: <Widget>[
-                                  if (ready.isNotEmpty && !filters.any) ...<Widget>[
+                                  if (ready.isNotEmpty &&
+                                      !filters.any) ...<Widget>[
                                     SectionHeader(
                                       label: 'Ready to call',
                                       note: 'no auth needed · ${ready.length}',
@@ -156,51 +160,64 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                                       ),
                                     const SizedBox(height: Space.md),
                                   ],
-                                  if (filters.any) ...<Widget>[
-                                    SectionHeader(
-                                      label: 'Matches · ${matching.length}',
-                                      note: 'of ${all.length}',
-                                    ),
-                                    const SizedBox(height: Space.row),
-                                    RowGroup(
-                                      children: <Widget>[
-                                        for (final ExploreApi api in matching)
-                                          ApiRow(api: api),
-                                      ],
-                                    ),
-                                  ] else ...<Widget>[
-                                    SectionHeader(
-                                      label: 'Categories · ${categories.length}',
-                                      note: 'A to Z',
-                                    ),
-                                    const SizedBox(height: Space.row),
-                                    RowGroup(
-                                      children: <Widget>[
-                                        for (final ExploreCategory cat
-                                            in categories)
-                                          AppRow(
-                                            title: cat.name,
-                                            subtitle: cat.summary,
-                                            minHeight: 60,
-                                            leading: Icon(
-                                              Icons.folder_special_outlined,
-                                              size: IconSpec.size,
-                                              color: c.iconMuted,
-                                            ),
-                                            trailing: Icon(
-                                              Icons.chevron_right_rounded,
-                                              size: IconSpec.size,
-                                              color: c.iconMuted,
-                                            ),
-                                            onTap: () => context.push(
-                                              Routes.exploreCategory(cat.name),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ],
+                                  SectionHeader(
+                                    label: filters.any
+                                        ? 'Matches · ${matching.length}'
+                                        : 'Categories · ${categories.length}',
+                                    note: filters.any
+                                        ? 'of ${all.length}'
+                                        : 'A to Z',
+                                  ),
+                                  const SizedBox(height: Space.row),
                                 ],
                               ),
+                            ),
+                          ),
+                          // Lazy from here down: a filter that matches most of
+                          // the catalogue used to build every row of it on
+                          // each keystroke.
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Space.screen,
+                            ),
+                            sliver: filters.any
+                                ? SliverRowGroup(
+                                    itemCount: matching.length,
+                                    itemBuilder: (
+                                      BuildContext context,
+                                      int i,
+                                    ) => ApiRow(api: matching[i]),
+                                  )
+                                : SliverRowGroup(
+                                    itemCount: categories.length,
+                                    itemBuilder: (BuildContext context, int i) {
+                                      final ExploreCategory cat = categories[i];
+                                      return AppRow(
+                                        title: cat.name,
+                                        subtitle: cat.summary,
+                                        minHeight: 60,
+                                        leading: Icon(
+                                          Icons.folder_special_outlined,
+                                          size: IconSpec.size,
+                                          color: c.iconMuted,
+                                        ),
+                                        trailing: Icon(
+                                          Icons.chevron_right_rounded,
+                                          size: IconSpec.size,
+                                          color: c.iconMuted,
+                                        ),
+                                        onTap: () => context.push(
+                                          Routes.exploreCategory(cat.name),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                          ),
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: Space.bottomSafe),
+                          ),
+                        ],
+                      ),
               ),
             ],
           ),
@@ -260,7 +277,12 @@ class _ReadyCard extends ConsumerWidget {
     final AppColors c = context.colors;
     return AppCard(
       onTap: () => context.push(Routes.exploreApi(api.name)),
-      padding: const EdgeInsets.fromLTRB(Space.lg, Space.md, Space.sm, Space.md),
+      padding: const EdgeInsets.fromLTRB(
+        Space.lg,
+        Space.md,
+        Space.sm,
+        Space.md,
+      ),
       child: Row(
         spacing: Space.md,
         children: <Widget>[
@@ -279,9 +301,7 @@ class _ReadyCard extends ConsumerWidget {
                   api.description,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppType.bodyMedium.copyWith(
-                    color: c.onSurfaceVariant,
-                  ),
+                  style: AppType.bodyMedium.copyWith(color: c.onSurfaceVariant),
                 ),
                 Text(
                   api.category.toLowerCase(),
@@ -315,6 +335,8 @@ class ApiRow extends ConsumerWidget {
     final AppColors c = context.colors;
     final bool savedAlready = isSaved(ref, api);
     return InkWell(
+      // The Android click sound belongs to the system, not to a tool.
+      enableFeedback: false,
       onTap: () => context.push(Routes.exploreApi(api.name)),
       child: Padding(
         padding: const EdgeInsets.only(left: Space.lg, right: Space.xs),
@@ -362,8 +384,8 @@ class ApiRow extends ConsumerWidget {
                   ? null
                   : () => addToCollection(context, ref, api),
               semanticLabel: savedAlready
-                  ? '${api.name} is already in a collection'
-                  : 'Save ${api.name} to a collection',
+                  ? '${api.name} is already in Folders'
+                  : 'Save ${api.name} to Folders',
               filled: false,
               tint: savedAlready ? c.success : c.iconMuted,
             ),
@@ -423,11 +445,7 @@ class _NoResults extends ConsumerWidget {
               color: c.surfaceContainerHigh,
               borderRadius: Radii.cardR,
             ),
-            child: Icon(
-              Icons.search_off_rounded,
-              size: 32,
-              color: c.iconMuted,
-            ),
+            child: Icon(Icons.search_off_rounded, size: 32, color: c.iconMuted),
           ),
           Text(
             'No matches',
@@ -437,9 +455,9 @@ class _NoResults extends ConsumerWidget {
             filters.auths.isEmpty
                 ? 'Nothing for "${filters.query}".'
                 : 'Nothing for "${filters.query}" with '
-                    '${filters.auths.map((ApiAuth a) => a.filterLabel).join(' or ')} '
-                    'on.'
-                    '${wouldMatch > 0 ? ' $wouldMatch ${wouldMatch == 1 ? 'API matches' : 'APIs match'} without that filter.' : ''}',
+                      '${filters.auths.map((ApiAuth a) => a.filterLabel).join(' or ')} '
+                      'on.'
+                      '${wouldMatch > 0 ? ' $wouldMatch ${wouldMatch == 1 ? 'API matches' : 'APIs match'} without that filter.' : ''}',
             style: AppType.body.copyWith(color: c.onSurfaceVariant),
           ),
           Wrap(
@@ -470,13 +488,18 @@ class _NoResults extends ConsumerWidget {
 /// Whether this API's sample request is already saved somewhere.
 bool isSaved(WidgetRef ref, ExploreApi api) {
   final String url = requestFrom(api).url;
-  return (ref.watch(requestsProvider).value ?? const <ApiRequest>[])
-      .any((ApiRequest r) => r.url == url);
+  return (ref.watch(requestsProvider).value ?? const <ApiRequest>[]).any(
+    (ApiRequest r) => r.url == url,
+  );
 }
 
-/// Board 3.2. Saves the API's sample request into a collection named after its
-/// category, making that collection if it does not exist yet, and offers to
-/// move it somewhere else.
+/// Board 3.2. Saves the API into a folder of its own, one request per endpoint
+/// the catalogue lists for it, and offers to move a lone request elsewhere.
+///
+/// Named after the API and not its category: an entry is a service with
+/// several endpoints, so "Dog CEO" holding both of its endpoints is what the
+/// bookmark means. A category folder holding one endpoint from each of its
+/// services is nobody's collection.
 Future<void> addToCollection(
   BuildContext context,
   WidgetRef ref,
@@ -485,38 +508,57 @@ Future<void> addToCollection(
   final CollectionsRepository repository = ref.read(
     collectionsRepositoryProvider,
   );
-  final List<Folder> folders = ref.read(foldersProvider).value ??
-      const <Folder>[];
+  final List<Folder> folders =
+      ref.read(foldersProvider).value ?? const <Folder>[];
   Folder? folder = folders
-      .where((Folder f) => f.parentId == null && f.name == api.category)
+      .where((Folder f) => f.parentId == null && f.name == api.name)
       .firstOrNull;
   if (folder == null) {
-    folder = Folder(id: newId(), name: api.category, order: folders.length);
+    folder = Folder(id: newId(), name: api.name, order: folders.length);
     await repository.saveFolder(folder);
   }
 
-  final int order = (ref.read(requestsProvider).value ?? const <ApiRequest>[])
+  // Every endpoint the entry lists, not just the first. An entry with no
+  // samples still yields the one request its base URL describes.
+  final List<ApiSample> samples = api.samples.isEmpty
+      ? const <ApiSample>[ApiSample()]
+      : api.samples;
+  int order = (ref.read(requestsProvider).value ?? const <ApiRequest>[])
       .where((ApiRequest r) => r.folderId == folder!.id)
       .length;
-  final ApiRequest saved = requestFrom(
-    api,
-  ).copyWith(name: api.name, folderId: folder.id, order: order);
-  await repository.saveRequest(saved);
+  final List<ApiRequest> saved = <ApiRequest>[];
+  for (final ApiSample sample in samples) {
+    final ApiRequest request = requestFrom(
+      api,
+      sample: sample,
+    ).copyWith(folderId: folder.id, order: order++);
+    await repository.saveRequest(request);
+    saved.add(request);
+  }
 
   if (!context.mounted) return;
+  final String what = saved.length == 1
+      ? '${api.name} added to Folders'
+      : '${api.name} added to Folders with ${saved.length} requests';
+  // Moving one request somewhere else is a sensible follow-up; moving a
+  // folderful one at a time is not, so the offer only stands for a single one.
+  if (saved.length > 1) {
+    AppSnackbar.info(context, what);
+    return;
+  }
   AppSnackbar.action(
     context,
-    message: '${api.name} added to ${folder.name}',
+    message: what,
     label: 'Change',
     onAction: () async {
       final SaveTarget? target = await showSaveRequestSheet(
         context,
         ref,
-        request: saved,
+        request: saved.first,
       );
       if (target == null) return;
       await repository.saveRequest(
-        saved.copyWith(name: target.name, folderId: target.folderId),
+        saved.first.copyWith(name: target.name, folderId: target.folderId),
       );
     },
   );
@@ -534,9 +576,9 @@ void openAsRequest(
   ExploreApi api, {
   ApiSample? sample,
 }) {
-  ref.read(workspaceProvider.notifier).openDraft(
-    requestFrom(api, sample: sample),
-  );
+  ref
+      .read(workspaceProvider.notifier)
+      .openDraft(requestFrom(api, sample: sample));
   final NavigatorState root = Navigator.of(context, rootNavigator: true);
   while (root.canPop()) {
     root.pop();

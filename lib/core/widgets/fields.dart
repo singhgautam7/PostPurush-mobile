@@ -319,6 +319,8 @@ class SwitchRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppColors c = context.colors;
     return InkWell(
+      // The Android click sound belongs to the system, not to a tool.
+      enableFeedback: false,
       onTap: () => onChanged(!value),
       child: Container(
         constraints: const BoxConstraints(minHeight: 56),

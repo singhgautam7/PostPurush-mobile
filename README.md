@@ -1,7 +1,7 @@
 # PostPurush for Android
 
 A local-first API client for Android. Compose a request, send it, read the response, and
-keep what worked in collections you own.
+keep what worked in folders you own.
 
 PostPurush is the native Android version of the PostPurush web client, rebuilt in Flutter
 for Material 3 Expressive. It is a member of an app family whose shared rule is that your
@@ -22,11 +22,11 @@ data stays on your device.
 - **Code export.** cURL, JavaScript, Python, Go, Java and PHP from the request in front of
   you, with variables resolved and secrets masked by default.
 - **Analytics.** Totals, success rate, average and P95 response time, status-code
-  distribution and per-collection breakdowns, worked out from your own local history.
+  distribution and per-folder breakdowns, worked out from your own local history.
 - **Testing.** Assertions on one response (status, time, headers, body, JSON path) and load
   tests with a concurrency and a stop condition, reporting throughput and latency
   percentiles.
-- **API docs.** A readable document generated from a collection, exportable as a PDF.
+- **API docs.** A readable document generated from a folder, exportable as a PDF.
 - **History.** Every send, reopenable exactly as it went out, kept on the device for as long
   as you choose.
 

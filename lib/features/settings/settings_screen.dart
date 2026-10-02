@@ -159,7 +159,7 @@ class SettingsScreen extends ConsumerWidget {
                   context,
                   title: 'Clear history?',
                   message:
-                      'Every entry goes. Saved requests and collections are '
+                      'Every entry goes. Saved requests and folders are '
                       'not touched.',
                   confirmLabel: 'Clear',
                 );

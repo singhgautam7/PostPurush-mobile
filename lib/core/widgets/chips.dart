@@ -176,6 +176,8 @@ class PillChip extends StatelessWidget {
         shape: const StadiumBorder(),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
+          // The Android click sound belongs to the system, not to a tool.
+          enableFeedback: false,
           onTap: onTap,
           child: Container(
             constraints: const BoxConstraints(minHeight: 36),
@@ -251,6 +253,8 @@ class SegmentedToggle<T> extends StatelessWidget {
                   button: true,
                   selected: value == selected,
                   child: InkWell(
+                    // The Android click sound belongs to the system, not to a tool.
+                    enableFeedback: false,
                     onTap: () => onChanged(value),
                     borderRadius: Radii.fullR,
                     child: AnimatedContainer(

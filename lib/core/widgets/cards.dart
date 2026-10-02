@@ -33,8 +33,8 @@ class AppCard extends StatelessWidget {
     final Color fill = danger
         ? c.dangerContainer
         : selected
-            ? c.primaryContainer
-            : c.surfaceContainer;
+        ? c.primaryContainer
+        : c.surfaceContainer;
     final Widget body = Padding(padding: padding, child: child);
     // The shape carries the radius. Material asserts if both are given, and
     // the outline is what the card's depth is made of, so the shape wins.
@@ -45,7 +45,9 @@ class AppCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
         side: BorderSide(color: danger ? c.dangerContainer : c.outline),
       ),
-      child: onTap == null ? body : InkWell(onTap: onTap, child: body),
+      child: onTap == null
+          ? body
+          : InkWell(enableFeedback: false, onTap: onTap, child: body),
     );
   }
 }
@@ -95,6 +97,59 @@ class RowGroup extends StatelessWidget {
   }
 }
 
+/// [RowGroup] for a list long enough that building it all at once is felt.
+///
+/// A group of a dozen rows is cheaper as a Column than as a sliver. A group of
+/// two hundred, rebuilt on every keystroke of a search, is not: this one keeps
+/// the group's fill, outline and hairlines but builds only the rows on screen.
+class SliverRowGroup extends StatelessWidget {
+  const SliverRowGroup({
+    required this.itemCount,
+    required this.itemBuilder,
+    this.onSurface = false,
+    this.radius = Radii.card,
+    super.key,
+  });
+
+  final int itemCount;
+  final NullableIndexedWidgetBuilder itemBuilder;
+  final bool onSurface;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppColors c = context.colors;
+    if (itemCount == 0) return const SliverToBoxAdapter();
+    // The fill and the outline are painted behind the rows rather than
+    // clipping them, because a sliver has no single box to clip to. Rows carry
+    // no fill of their own, so the rounded corners read the same as the
+    // Column version.
+    return DecoratedSliver(
+      decoration: BoxDecoration(
+        color: onSurface ? c.surface : c.surfaceContainer,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: c.outline),
+      ),
+      sliver: SliverList.builder(
+        itemCount: itemCount,
+        itemBuilder: (BuildContext context, int i) {
+          final Widget? row = itemBuilder(context, i);
+          if (row == null) return null;
+          return i == 0
+              ? row
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Divider(color: c.divider, height: 1),
+                    row,
+                  ],
+                );
+        },
+      ),
+    );
+  }
+}
+
 /// One row inside a [RowGroup]: a leading glyph or chip, a title with an
 /// optional second line, a count, and a trailing control.
 class AppRow extends StatelessWidget {
@@ -139,8 +194,8 @@ class AppRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppColors c = context.colors;
     final Color fg = selected ? c.onPrimaryContainer : c.onSurface;
-    final Color sub = subtitleColor ??
-        (selected ? c.onPrimaryContainer : c.onSurfaceVariant);
+    final Color sub =
+        subtitleColor ?? (selected ? c.onPrimaryContainer : c.onSurfaceVariant);
 
     final Widget content = Container(
       color: selected ? c.primaryContainer : null,
@@ -182,10 +237,7 @@ class AppRow extends StatelessWidget {
             ),
           ),
           if (count != null)
-            Text(
-              count!,
-              style: AppType.monoLabel.copyWith(color: sub),
-            ),
+            Text(count!, style: AppType.monoLabel.copyWith(color: sub)),
           ?trailing,
         ],
       ),
@@ -196,7 +248,12 @@ class AppRow extends StatelessWidget {
       button: true,
       selected: selected,
       label: subtitle == null ? title : '$title, $subtitle',
-      child: InkWell(onTap: onTap, onLongPress: onLongPress, child: content),
+      child: InkWell(
+        enableFeedback: false,
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: content,
+      ),
     );
   }
 }
@@ -225,10 +282,7 @@ class StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppColors c = context.colors;
     return AppCard(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: Space.md,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: Space.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 4,
@@ -255,9 +309,7 @@ class StatCard extends StatelessWidget {
               if (unit != null)
                 Text(
                   unit!,
-                  style: AppType.monoLabel.copyWith(
-                    color: c.onSurfaceVariant,
-                  ),
+                  style: AppType.monoLabel.copyWith(color: c.onSurfaceVariant),
                 ),
             ],
           ),

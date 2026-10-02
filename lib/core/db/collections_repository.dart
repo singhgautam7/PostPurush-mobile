@@ -149,6 +149,10 @@ class CollectionsRepository {
   });
 
   /// How many requests sit in a folder, counting its subfolders.
+  ///
+  /// For one folder. A screen that draws the whole tree builds a [FolderIndex]
+  /// instead: this walks every folder and every request per call, so calling
+  /// it once per row is quadratic in the number of folders.
   static int countIn(
     String folderId,
     List<Folder> folders,
@@ -161,13 +165,65 @@ class CollectionsRepository {
     while (grew) {
       grew = false;
       for (final Folder f in folders) {
-        if (f.parentId != null &&
-            ids.contains(f.parentId) &&
-            ids.add(f.id)) {
+        if (f.parentId != null && ids.contains(f.parentId) && ids.add(f.id)) {
           grew = true;
         }
       }
     }
     return requests.where((ApiRequest r) => ids.contains(r.folderId)).length;
   }
+}
+
+/// The folder tree, worked out once: who sits under whom, what is in each
+/// folder, and the count each row prints.
+///
+/// Collections used to derive all of this per row, from the two flat lists, so
+/// drawing the tree cost roughly folders squared times requests. This is two
+/// passes and a walk, and every row is then a map lookup.
+class FolderIndex {
+  FolderIndex._(this.children, this.requestsIn, this.totals);
+
+  factory FolderIndex.of(List<Folder> folders, List<ApiRequest> requests) {
+    final Map<String?, List<Folder>> children = <String?, List<Folder>>{};
+    for (final Folder f in folders) {
+      (children[f.parentId] ??= <Folder>[]).add(f);
+    }
+    final Map<String?, List<ApiRequest>> requestsIn =
+        <String?, List<ApiRequest>>{};
+    for (final ApiRequest r in requests) {
+      (requestsIn[r.folderId] ??= <ApiRequest>[]).add(r);
+    }
+
+    // Totals bottom-up, iteratively and with a seen set, so a parent cycle in
+    // a corrupt payload cannot hang the home screen.
+    final Map<String, int> totals = <String, int>{};
+    final Set<String> seen = <String>{};
+    int walk(Folder folder) {
+      if (!seen.add(folder.id)) return totals[folder.id] ?? 0;
+      int sum = requestsIn[folder.id]?.length ?? 0;
+      for (final Folder child in children[folder.id] ?? const <Folder>[]) {
+        sum += walk(child);
+      }
+      return totals[folder.id] = sum;
+    }
+
+    for (final Folder f in folders) {
+      walk(f);
+    }
+    return FolderIndex._(children, requestsIn, totals);
+  }
+
+  final Map<String?, List<Folder>> children;
+  final Map<String?, List<ApiRequest>> requestsIn;
+  final Map<String, int> totals;
+
+  List<Folder> get roots => children[null] ?? const <Folder>[];
+  List<ApiRequest> get unfiled => requestsIn[null] ?? const <ApiRequest>[];
+
+  List<Folder> childrenOf(String id) => children[id] ?? const <Folder>[];
+  List<ApiRequest> requestsOf(String id) =>
+      requestsIn[id] ?? const <ApiRequest>[];
+
+  /// Requests in the folder and everything under it.
+  int totalIn(String id) => totals[id] ?? 0;
 }

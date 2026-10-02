@@ -1,11 +1,16 @@
 /// Every number and date the interface prints comes through here, so two
 /// screens can never disagree about what "1,391 ms" or "2 min ago" looks like.
 abstract final class Fmt {
+  /// Compiled once. A `RegExp` built inside a row's `build` is recompiled for
+  /// every row on every rebuild, which is a list-sized cost for a constant.
+  static final RegExp _groups = RegExp(r'(\d)(?=(\d{3})+$)');
+  static final RegExp _scheme = RegExp('^https?://');
+
   /// `1391` becomes `1,391`.
   static String thousands(num value) {
     final String digits = value.abs().truncate().toString();
     final String grouped = digits.replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+$)'),
+      _groups,
       (Match m) => '${m[1]},',
     );
     return value < 0 ? '-$grouped' : grouped;
@@ -18,6 +23,10 @@ abstract final class Fmt {
 
   /// The dock's counter while a request is in flight: `0.84 s`.
   static String elapsed(int ms) => '${(ms / 1000).toStringAsFixed(2)} s';
+
+  /// Drops `http://` or `https://`, which is never the interesting part of a
+  /// URL in a list. The one place that decides it, for every list that does.
+  static String bareUrl(String url) => url.replaceFirst(_scheme, '');
 
   /// `79 B`, `5.6 KB`, `2.1 MB`.
   static String bytes(int size) {

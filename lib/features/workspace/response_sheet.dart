@@ -135,9 +135,8 @@ class _ResponseSheetState extends State<ResponseSheet> {
                 response: response,
                 full: full,
                 onResend: widget.onResend,
-                onToggleSize: () => widget.onStopChanged(
-                  full ? DockStop.half : DockStop.full,
-                ),
+                onToggleSize: () =>
+                    widget.onStopChanged(full ? DockStop.half : DockStop.full),
               ),
               SegmentedToggle<_Tab>(
                 options: const <(_Tab, String)>[
@@ -266,6 +265,9 @@ class _ResponseSheetState extends State<ResponseSheet> {
                   source: source,
                   wrap: _wrap || _view == _BodyView.preview,
                   foldable: _view == _BodyView.pretty && response.isJson,
+                  // Raw is the bytes as they arrived: no re-indenting, no
+                  // colouring, no folds. Otherwise it looked like Pretty.
+                  raw: _view == _BodyView.raw,
                 ),
               ),
             ),
@@ -384,9 +386,7 @@ class _ResponseSheetState extends State<ResponseSheet> {
                     child: Text(
                       '$number',
                       textAlign: TextAlign.right,
-                      style: AppType.monoCode.copyWith(
-                        color: c.onSurfaceMuted,
-                      ),
+                      style: AppType.monoCode.copyWith(color: c.onSurfaceMuted),
                     ),
                   ),
                   Expanded(

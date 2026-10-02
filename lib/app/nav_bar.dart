@@ -13,11 +13,11 @@ class NavDestination {
   final String label;
 }
 
-/// Collections · Explore · Search · More. Four destinations, evenly spaced,
+/// Folders · Explore · Search · More. Four destinations, evenly spaced,
 /// nothing between them. There is no centre action: New request is a floating
-/// button on Collections, and the workspace belongs to Collections too.
+/// button on Folders, and the workspace belongs to Folders too.
 const List<NavDestination> kDestinations = <NavDestination>[
-  NavDestination(Icons.folder_open_rounded, 'Collections'),
+  NavDestination(Icons.folder_open_rounded, 'Folders'),
   NavDestination(Icons.explore_outlined, 'Explore'),
   NavDestination(Icons.search_rounded, 'Search'),
   NavDestination(Icons.tune_rounded, 'More'),
@@ -95,6 +95,8 @@ class _NavItem extends StatelessWidget {
       selected: selected,
       label: destination.label,
       child: InkWell(
+        // The Android click sound belongs to the system, not to a tool.
+        enableFeedback: false,
         onTap: onTap,
         customBorder: const StadiumBorder(),
         child: AnimatedContainer(
@@ -141,6 +143,70 @@ class _NavItem extends StatelessWidget {
                     : const SizedBox.shrink(),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+/// The circular New request button, on the same line as the pill.
+///
+/// Perch's arrangement: it sits beside the pill, never inside it, because
+/// composing a request is an action and not a destination. 56dp, the accent
+/// fill, and a 0.94 squash under the finger.
+class NavFab extends StatefulWidget {
+  const NavFab({
+    required this.onTap,
+    this.onLongPress,
+    this.semanticLabel = 'New request',
+    super.key,
+  });
+
+  final VoidCallback onTap;
+
+  /// The board keeps the quick actions on a long press.
+  final VoidCallback? onLongPress;
+  final String semanticLabel;
+
+  @override
+  State<NavFab> createState() => _NavFabState();
+}
+
+class _NavFabState extends State<NavFab> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppColors c = context.colors;
+    return Semantics(
+      button: true,
+      label: widget.semanticLabel,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
+        child: AnimatedScale(
+          scale: _pressed ? 0.94 : 1,
+          duration: const Duration(milliseconds: 40),
+          child: Container(
+            height: NavSpec.height,
+            width: NavSpec.height,
+            decoration: BoxDecoration(
+              color: _pressed ? c.primaryPressed : c.primary,
+              borderRadius: Radii.fullR,
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: c.primary.withValues(alpha: 0.3),
+                  blurRadius: Elevations.navPillBlur,
+                  offset: const Offset(0, Elevations.navPill),
+                ),
+              ],
+            ),
+            child: Icon(Icons.add_rounded, color: c.onPrimary, size: 26),
           ),
         ),
       ),

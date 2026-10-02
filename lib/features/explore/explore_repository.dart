@@ -19,7 +19,7 @@ class ExploreRepository {
 
   Future<List<ExploreApi>> load() async {
     final String raw = await rootBundle.loadString(asset);
-    // A 40 KB decode is not free on a slow device, and it happens while the
+    // A 100 KB decode is not free on a slow device, and it happens while the
     // Explore tab is animating in, so it goes to a worker isolate.
     return compute(_decode, raw);
   }

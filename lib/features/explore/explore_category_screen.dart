@@ -20,14 +20,16 @@ class ExploreCategoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<ExploreApi> all = ref.watch(exploreApisProvider).value ??
-        const <ExploreApi>[];
+    final List<ExploreApi> all =
+        ref.watch(exploreApisProvider).value ?? const <ExploreApi>[];
     final ExploreFilters filters = ref.watch(exploreFiltersProvider);
     final List<ExploreApi> inCategory = <ExploreApi>[
-      for (final ExploreApi api in all) if (api.category == category) api,
+      for (final ExploreApi api in all)
+        if (api.category == category) api,
     ];
     final List<ExploreApi> matching = <ExploreApi>[
-      for (final ExploreApi api in inCategory) if (filters.accepts(api)) api,
+      for (final ExploreApi api in inCategory)
+        if (filters.accepts(api)) api,
     ];
 
     return Scaffold(
@@ -41,7 +43,7 @@ class ExploreCategoryScreen extends ConsumerWidget {
               subtitle: filters.any
                   ? '${matching.length} of ${inCategory.length} match filters'
                   : '${inCategory.length} '
-                      '${inCategory.length == 1 ? 'API' : 'APIs'}',
+                        '${inCategory.length == 1 ? 'API' : 'APIs'}',
               onBack: () => context.pop(),
             ),
             Padding(
@@ -66,19 +68,20 @@ class ExploreCategoryScreen extends ConsumerWidget {
                           ref.read(exploreFiltersProvider.notifier).clear(),
                       topPadding: 40,
                     )
-                  : ListView(
-                      padding: const EdgeInsets.fromLTRB(
-                        Space.screen,
-                        0,
-                        Space.screen,
-                        Space.bottomSafe,
-                      ),
-                      children: <Widget>[
-                        RowGroup(
-                          children: <Widget>[
-                            for (final ExploreApi api in matching)
-                              ApiRow(api: api),
-                          ],
+                  : CustomScrollView(
+                      slivers: <Widget>[
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: Space.screen,
+                          ),
+                          sliver: SliverRowGroup(
+                            itemCount: matching.length,
+                            itemBuilder: (BuildContext context, int i) =>
+                                ApiRow(api: matching[i]),
+                          ),
+                        ),
+                        const SliverToBoxAdapter(
+                          child: SizedBox(height: Space.bottomSafe),
                         ),
                       ],
                     ),

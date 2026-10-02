@@ -1,7 +1,7 @@
 # PostPurush
 
 PostPurush is a local-first API client for Android, built in Flutter. Compose a request,
-send it, read the response, and keep what worked in collections you own. Everything lives
+send it, read the response, and keep what worked in folders you own. Everything lives
 on the device: no account, no sync, no telemetry, and the only traffic that leaves the
 phone is the requests you press Send on.
 
@@ -110,7 +110,8 @@ lib/core/models/           freezed models + http_method/body/auth/var enums
 lib/core/routing/          routes (every path in one place)
 lib/core/widgets/          THE SHARED DESIGN SYSTEM. See below.
 lib/core/error/            guard (decodeOrNull / decodeAll)
-lib/core/util/             ids · format (Fmt) · wallpaper_seed
+lib/core/util/             ids · format (Fmt) · wallpaper_seed ·
+                           platform_surfaces (the one MethodChannel)
 lib/core/providers.dart    the provider graph
 lib/features/              collections · workspace · explore · environments ·
                            history · analytics · testing · api_docs · more ·
@@ -162,6 +163,8 @@ copy-pasting a widget, extract it instead. There is one implementation of each o
 | Bottom sheet, destructive confirm, save-or-discard | `showAppSheet`, `confirmDialog`, `askToSave` |
 | Anchored menu | `showAppMenu` + `AppMenuEntry` |
 | Undo strip and every toast | `AppSnackbar.info` / `.undo` / `.action` |
+| A run of hairline rows too long to build at once | `SliverRowGroup` |
+| The folder tree: children, contents, counts | `FolderIndex.of` |
 | Empty, error, inline error, delayed loader, skeletons | `EmptyState`, `ErrorStateView`, `InlineError`, `Delayed`, `SkeletonLine`, `SkeletonRow` |
 | `{{variable}}` highlighting, anywhere | `VariableText`, `VariableWellPainter`, `VariableEditingController` |
 | URL bar, method picker | `UrlBar`, `MethodPicker` |
@@ -201,12 +204,18 @@ Two notes on deliberate non-dependencies, so nobody "fixes" them by adding a pac
 ## Nav
 
 Four destinations, evenly spaced, icon-only when inactive, the active one expanding into a
-labelled `primaryContainer` pill: **Collections · Explore · Search · More**. No centre
-action. New request is a floating button on Collections. The workspace belongs to
-Collections and keeps the nav; every other pushed page hides it (`navHiddenProvider`), and
-its primary action floats where the pill was.
+labelled `primaryContainer` pill: **Folders · Explore · Search · More**. No centre
+action. New request is a circular button beside the pill, on the same line, and it stands
+on every destination: it is the app's one primary action, and a request composed from
+Explore returns to Explore. It opens the workspace on the root navigator for that reason.
+The workspace hides the pill for its whole life (`navHiddenProvider`), as does every other
+pushed page, and each one's primary action floats where the pill was.
 
 Environments, Analytics, Testing, API docs and History live in More, not in the nav.
+Privacy, Permissions and About sit under it too. The version on About and More is
+the one Android reports for the installed package, read through
+`PlatformSurfaces.appVersion`; `AboutInfo` holds only the links and the string to
+show before the channel answers.
 
 ## Release
 
@@ -284,10 +293,44 @@ Each of these cost time once. None of them is obvious from the code.
   (`late final _nav = ref.read(...)`), because reading `ref` from `dispose`
   never runs and the state stays stuck. Writing the same flag from `build`
   is worse: the last build's post-frame callback lands *after* the clear.
-- **Nested scrollables need one controller, not one each.** Giving every code
-  line its own horizontal `SingleChildScrollView` made each line scroll by
-  itself. One shared `ScrollController` across all of them moves the block as
-  one sheet of text and keeps the list virtualised.
+- **Separate scrollables cannot be made to scroll together.** Giving every
+  code line its own horizontal `SingleChildScrollView` made each line scroll
+  by itself, and sharing one `ScrollController` between them does not fix it:
+  only the one under the finger moves. The block scrolls as one sheet of text
+  because there is no inner scrollable at all, just a shared offset applied
+  through `Transform.translate`, with the drag recognised on every line.
+- **`OverflowBox` takes the biggest size it is offered.** Giving it an
+  infinite `maxWidth` so a line can lay out at its full width is right; doing
+  that inside a sliver, which offers infinite height, makes the line
+  infinitely tall and the list renders nothing below the first one. It needs a
+  measured height, which is why `SliverCodeView` measures one line.
+- **The release manifest had no `INTERNET` permission.** Flutter's template
+  declares it only in `src/debug` and `src/profile`, for the tool's own
+  connection. Debug builds therefore send fine and a release build cannot send
+  at all, which for this app is the whole product. `src/main` declares it now.
+- **Material plays the system click on every tap.** `enableFeedback` defaults
+  to true on `InkWell` and friends, so a tool that should be quiet clicks like
+  a dialler. Every ink widget here passes `enableFeedback: false`, and the
+  theme turns it off for the Material widgets that read it from there
+  (`textButtonTheme`, `iconButtonTheme`, `listTileTheme`, `popupMenuTheme`).
+- **A long list in a `RowGroup` is built in full, every rebuild.** Explore's
+  168 matches, the category lists, Collections and Search's results were all a
+  `Column` inside a `ListView`, rebuilt on every keystroke or stream emission,
+  which is why two of the Search scopes capped at 60. `SliverRowGroup` keeps
+  the group's fill, outline and hairlines and builds a screenful at a time, so
+  the caps are gone. API docs is the one list deliberately left eager: its
+  in-page anchors are `GlobalKey`s, and `Scrollable.ensureVisible` cannot reach
+  an endpoint that has not been built.
+- **Deriving the folder tree per row is cubic.** Every row of Collections
+  called `countIn`, which walks all folders and all requests, and each folder
+  block rescanned both flat lists for its own children. `FolderIndex.of` does
+  it in one pass over each list and every row is then a map lookup; the save
+  sheet and API docs use it too. `countIn` stands for the single-folder case.
+- **Parsing the response is the expensive thing the viewer does.** It used to
+  happen in every `build`: once per fold, once per frame of a sideways drag.
+  `SliverCodeView` keeps the outline until the source, fold version, colours or
+  environment change, and the body editor asks `JsonOutline.isValid` rather
+  than building a document it throws away.
 - **The response is a real sheet.** `DraggableScrollableSheet` with the board's
   three stops as `snapSizes`, handing its `ScrollController` to the body, is
   what makes the drag and the body scroll a single gesture. A `Positioned` box

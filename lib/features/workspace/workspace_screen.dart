@@ -65,8 +65,12 @@ class WorkspaceScreen extends ConsumerStatefulWidget {
 class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
   final VariableEditingController _url = VariableEditingController();
   final FocusNode _urlFocus = FocusNode();
-  final DraggableScrollableController _sheet =
-      DraggableScrollableController();
+  final DraggableScrollableController _sheet = DraggableScrollableController();
+
+  /// How far the response sheet is open, for the scrim behind it. A notifier
+  /// rather than setState: the extent changes every frame of a drag and only
+  /// the scrim cares about it.
+  final ValueNotifier<double> _extent = ValueNotifier<double>(_halfStop);
 
   /// Captured in initState, because `ref` is no longer usable by the time
   /// dispose runs and the pill has to be handed back from there.
@@ -111,6 +115,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
       ..removeListener(_onFocusChanged)
       ..dispose();
     _sheet.dispose();
+    _extent.dispose();
     // The pill belongs to the destinations, so it comes back when this page
     // leaves.
     _setNav(hidden: false);
@@ -148,32 +153,43 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
   void _edit(ApiRequest Function(ApiRequest) change) =>
       ref.read(workspaceProvider.notifier).edit(change);
 
-  /// Animates the sheet to a stop, for the expand button and the dock.
-  void _goToStop(DockStop stop) {
-    ref.read(workspaceProvider.notifier).setStop(stop);
-    if (!_sheet.isAttached) return;
-    unawaited(
-      _sheet.animateTo(
-        switch (stop) {
-          DockStop.collapsed => _collapsedStop,
-          DockStop.half => _halfStop,
-          DockStop.full => _fullStop,
-        },
-        duration: Motion.of(context, Motion.containerTransform),
-        curve: Motion.curveOf(context, Motion.decelerate),
-      ),
+  /// Animates the sheet to a stop, for the expand button, the scrim and the
+  /// dock.
+  ///
+  /// The animation runs first and the state is written after it: writing
+  /// `collapsed` first takes the sheet out of the tree, which detaches the
+  /// controller and skips the closing animation entirely.
+  Future<void> _goToStop(DockStop stop) async {
+    final WorkspaceController controller = ref.read(workspaceProvider.notifier);
+    if (!_sheet.isAttached) {
+      controller.setStop(stop);
+      return;
+    }
+    await _sheet.animateTo(
+      switch (stop) {
+        DockStop.collapsed => _collapsedStop,
+        DockStop.half => _halfStop,
+        DockStop.full => _fullStop,
+      },
+      duration: Motion.of(context, Motion.containerTransform),
+      curve: Motion.curveOf(context, Motion.decelerate),
     );
+    if (mounted) controller.setStop(stop);
   }
 
   /// Where the finger left it decides the stop. Dragging it down to collapsed
   /// is what closes it, and the sheet is only taken out of the tree once it has
   /// animated all the way down, so the close has the same motion as the open.
   void _onSheetMoved(double extent) {
+    _extent.value = extent;
+    // Collapsed only once the sheet has actually reached the bottom stop, not
+    // partway down: the sheet leaves the tree the moment this says collapsed,
+    // and leaving early cut the closing animation off mid-flight.
     final DockStop stop = extent >= (_halfStop + _fullStop) / 2
         ? DockStop.full
-        : extent <= _halfStop * 0.6
-            ? DockStop.collapsed
-            : DockStop.half;
+        : extent <= _collapsedStop + 0.01
+        ? DockStop.collapsed
+        : DockStop.half;
     if (stop != ref.read(workspaceProvider).stop) {
       ref.read(workspaceProvider.notifier).setStop(stop);
     }
@@ -195,7 +211,7 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
     );
     if (target == null) return;
     await controller.save(name: target.name, folderId: target.folderId);
-    if (mounted) AppSnackbar.info(context, 'Saved to Collections');
+    if (mounted) AppSnackbar.info(context, 'Saved to Folders');
   }
 
   Future<void> _pickMethod(HttpMethod current) async {
@@ -253,10 +269,10 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
           child: EmptyState(
             icon: Icons.bolt_rounded,
             title: 'Nothing open',
-            message: 'Start a request, or open one from Collections.',
+            message: 'Start a request, or open one from Folders.',
             primaryLabel: 'New request',
             onPrimary: () => ref.read(workspaceProvider.notifier).openBlank(),
-            secondaryLabel: 'Collections',
+            secondaryLabel: 'Folders',
             secondaryIcon: Icons.folder_open_rounded,
             onSecondary: () => context.go(Routes.collections),
           ),
@@ -304,13 +320,6 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                     tab: tab,
                     onBack: () => context.pop(),
                     onSave: canSend ? _save : null,
-                    onExport: canSend
-                        ? () => showCodeExportSheet(
-                            context,
-                            ref,
-                            request: tab.draft,
-                          )
-                        : null,
                     onOverflow: (BuildContext anchor) => _overflow(anchor, tab),
                   ),
                   _TitleRow(
@@ -422,41 +431,51 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
                         env == null ? null : _addMissing(name, env),
                   ),
                 )
-              else if (sheetOpen)
+              else if (sheetOpen) ...<Widget>[
+                // The scrim a modal sheet has: it dims the request behind the
+                // response and closes the sheet when tapped.
+                Positioned.fill(
+                  child: _SheetScrim(
+                    extent: _extent,
+                    onTap: () => _goToStop(DockStop.collapsed),
+                  ),
+                ),
                 // A real sheet: it follows the finger, snaps to the board's
                 // collapsed, half and full stops, and once it is full the same
                 // drag scrolls the body, because the sheet hands its scroll
                 // controller down.
-                NotificationListener<DraggableScrollableNotification>(
-                  onNotification: (DraggableScrollableNotification n) {
-                    _onSheetMoved(n.extent);
-                    return false;
-                  },
-                  child: DraggableScrollableSheet(
-                    controller: _sheet,
-                    initialChildSize: _halfStop,
-                    minChildSize: _collapsedStop,
-                    maxChildSize: _fullStop,
-                    snap: true,
-                    // All three of the board's stops, so a drag lands on one
-                    // of them rather than wherever the finger stopped.
-                    snapSizes: const <double>[_collapsedStop, _halfStop],
-                    snapAnimationDuration: Motion.containerTransform,
-                    builder:
-                        (
-                          BuildContext context,
-                          ScrollController scrollController,
-                        ) => ResponseSheet(
-                          response: tab.response!,
-                          scrollController: scrollController,
-                          stop: state.stop,
-                          onStopChanged: _goToStop,
-                          onResend: () =>
-                              ref.read(workspaceProvider.notifier).send(),
-                        ),
+                _SheetEntrance(
+                  child: NotificationListener<DraggableScrollableNotification>(
+                    onNotification: (DraggableScrollableNotification n) {
+                      _onSheetMoved(n.extent);
+                      return false;
+                    },
+                    child: DraggableScrollableSheet(
+                      controller: _sheet,
+                      initialChildSize: _halfStop,
+                      minChildSize: _collapsedStop,
+                      maxChildSize: _fullStop,
+                      snap: true,
+                      // All three of the board's stops, so a drag lands on one
+                      // of them rather than wherever the finger stopped.
+                      snapSizes: const <double>[_collapsedStop, _halfStop],
+                      snapAnimationDuration: Motion.containerTransform,
+                      builder:
+                          (
+                            BuildContext context,
+                            ScrollController scrollController,
+                          ) => ResponseSheet(
+                            response: tab.response!,
+                            scrollController: scrollController,
+                            stop: state.stop,
+                            onStopChanged: _goToStop,
+                            onResend: () =>
+                                ref.read(workspaceProvider.notifier).send(),
+                          ),
+                    ),
                   ),
-                )
-              else if (!keyboardUp)
+                ),
+              ] else if (!keyboardUp)
                 Positioned(
                   left: Space.lg,
                   right: Space.lg,
@@ -496,6 +515,12 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
       context: anchor,
       entries: <AppMenuEntry<String>>[
         const AppMenuEntry<String>(
+          value: 'export',
+          label: 'Export as code',
+          icon: Icons.code_rounded,
+          note: 'cURL, JavaScript, Python and more',
+        ),
+        const AppMenuEntry<String>(
           value: 'curl',
           label: 'Paste cURL',
           icon: Icons.content_paste_rounded,
@@ -527,6 +552,8 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
     );
     if (!mounted) return;
     switch (choice) {
+      case 'export':
+        await showCodeExportSheet(context, ref, request: tab.draft);
       case 'curl':
         await _pasteCurl();
       case 'copyUrl':
@@ -555,14 +582,12 @@ class _TopBar extends StatelessWidget {
     required this.tab,
     required this.onBack,
     required this.onSave,
-    required this.onExport,
     required this.onOverflow,
   });
 
   final WorkspaceTab tab;
   final VoidCallback onBack;
   final VoidCallback? onSave;
-  final VoidCallback? onExport;
   final void Function(BuildContext) onOverflow;
 
   @override
@@ -574,21 +599,15 @@ class _TopBar extends StatelessWidget {
         AppIconButton(
           icon: Icons.arrow_back_rounded,
           onPressed: onBack,
-          semanticLabel: 'Back to Collections',
-          filled: false,
+          semanticLabel: 'Back to Folders',
         ),
         Flexible(child: EnvironmentChip(request: tab.draft)),
-        const SizedBox(width: Space.xs),
+        const Spacer(),
         AppIconButton(
           icon: Icons.save_rounded,
           onPressed: onSave,
           semanticLabel: 'Save this request',
           badge: tab.dirty,
-        ),
-        AppIconButton(
-          icon: Icons.code_rounded,
-          onPressed: onExport,
-          semanticLabel: 'Export as code',
         ),
         Builder(
           builder: (BuildContext anchor) => AppIconButton(
@@ -631,6 +650,8 @@ class _TitleRow extends StatelessWidget {
       },
       behavior: HitTestBehavior.opaque,
       child: InkWell(
+        // The Android click sound belongs to the system, not to a tool.
+        enableFeedback: false,
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
@@ -823,20 +844,10 @@ class _BodyPaneState extends State<_BodyPane> {
     final String text = _body.text.trim();
     if (text.isEmpty) return null;
     // Braces hold variables, which are not JSON until they resolve, so the
-    // check runs against a substituted copy.
+    // check runs against a substituted copy. A decode, not an outline: this
+    // runs on every keystroke and the spans would be thrown away.
     final String probe = text.replaceAll(VariableResolver.pattern, '0');
-    try {
-      JsonOutline.of(probe, colors: context.colors, base: AppType.monoCode);
-    } catch (_) {
-      return 'That is not valid JSON yet.';
-    }
-    return JsonOutline.of(
-          probe,
-          colors: context.colors,
-          base: AppType.monoCode,
-        ).valid
-        ? null
-        : 'That is not valid JSON yet.';
+    return JsonOutline.isValid(probe) ? null : 'That is not valid JSON yet.';
   }
 
   @override
@@ -1140,4 +1151,77 @@ class _AuthPaneState extends State<_AuthPane> {
       ],
     );
   }
+}
+
+/// The dim behind the response sheet, tied to how far the sheet is open.
+///
+/// It fades in over the travel from collapsed to half and goes no darker after
+/// that: by half the page behind is mostly covered anyway, and a scrim that
+/// keeps darkening on the way to full reads as a flicker.
+class _SheetScrim extends StatelessWidget {
+  const _SheetScrim({required this.extent, required this.onTap});
+
+  final ValueNotifier<double> extent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color scrim = context.colors.scrim;
+    return ValueListenableBuilder<double>(
+      valueListenable: extent,
+      builder: (BuildContext context, double e, Widget? _) {
+        final double t = ((e - _collapsedStop) / (_halfStop - _collapsedStop))
+            .clamp(0.0, 1.0);
+        return IgnorePointer(
+          // Nothing to tap through to while it is dark, and nothing to catch
+          // while it is clear.
+          ignoring: t < 0.05,
+          child: GestureDetector(
+            onTap: onTap,
+            child: ColoredBox(color: Color.lerp(Colors.transparent, scrim, t)!),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Slides the response sheet up the first time it appears.
+///
+/// [DraggableScrollableSheet] lays itself out at its initial extent, so on its
+/// own it simply appears at half height. One slide on mount gives it the
+/// entrance every other sheet in the app gets from `showAppSheet`.
+class _SheetEntrance extends StatefulWidget {
+  const _SheetEntrance({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_SheetEntrance> createState() => _SheetEntranceState();
+}
+
+class _SheetEntranceState extends State<_SheetEntrance>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    duration: Motion.of(context, Motion.sheet),
+    vsync: this,
+  )..forward();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => SlideTransition(
+    position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+        .animate(
+          CurvedAnimation(
+            parent: _c,
+            curve: Motion.curveOf(context, Motion.decelerate),
+          ),
+        ),
+    child: widget.child,
+  );
 }

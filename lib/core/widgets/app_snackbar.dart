@@ -94,6 +94,8 @@ abstract final class AppSnackbar {
                     button: true,
                     label: actionLabel,
                     child: InkWell(
+                      // The Android click sound belongs to the system, not to a tool.
+                      enableFeedback: false,
                       onTap: () {
                         messenger.hideCurrentSnackBar();
                         onAction?.call();

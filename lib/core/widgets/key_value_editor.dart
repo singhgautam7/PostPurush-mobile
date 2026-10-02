@@ -429,6 +429,8 @@ class _CollapsedRow extends StatelessWidget {
     final Color keyColour = row.enabled ? c.onSurface : c.onSurfaceMuted;
     final Color valueColour = row.enabled ? c.onSurfaceVariant : c.onSurfaceMuted;
     return InkWell(
+      // The Android click sound belongs to the system, not to a tool.
+      enableFeedback: false,
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: Space.sm),

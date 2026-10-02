@@ -1,7 +1,7 @@
 name: postpurush
 description: "PostPurush, a local-first API client."
 publish_to: 'none'
-version: 1.0.0+100
+version: 0.0.1+1
 
 environment:
   sdk: ^3.13.2
@@ -41,8 +41,8 @@ flutter:
   uses-material-design: true
 
   assets:
-    # The bundled public-APIs catalogue, so Explore works offline. Rebuilt
-    # deliberately by tool/build_explore_dataset.dart, never edited by hand.
+    # The bundled public-APIs catalogue, so Explore works offline. Edited by
+    # hand; test/explore_catalogue_test.dart is what keeps it honest.
     - assets/data/explore_apis.json
 
   fonts:

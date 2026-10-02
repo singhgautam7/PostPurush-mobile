@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The one permission this app declares, and the product itself: sending
+         the requests the user composes. Debug and profile builds declare it
+         separately for the Flutter tool; a release build has only this one, so
+         without it every send fails on an installed APK. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="PostPurush"
         android:name="${applicationName}"

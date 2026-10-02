@@ -118,7 +118,7 @@ class _FolderFormState extends State<_FolderForm> {
             children: <Widget>[
               AppRow(
                 title: 'No parent',
-                subtitle: 'top level of Collections',
+                subtitle: 'top level of Folders',
                 leading: const Icon(Icons.home_rounded, size: IconSpec.size),
                 selected: _parent == null,
                 trailing: Icon(

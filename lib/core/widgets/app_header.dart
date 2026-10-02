@@ -50,7 +50,6 @@ class AppHeader extends StatelessWidget {
                 icon: Icons.arrow_back_rounded,
                 onPressed: onBack,
                 semanticLabel: backLabel,
-                filled: false,
               ));
 
     return AnimatedContainer(
@@ -92,7 +91,10 @@ class AppHeader extends StatelessWidget {
                 ],
               ),
             ),
-            ...actions,
+            for (int i = 0; i < actions.length; i++) ...<Widget>[
+              if (i > 0) const SizedBox(width: Space.sm),
+              actions[i],
+            ],
           ],
         ),
       ),

@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/models/explore_api.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/util/format.dart';
 import '../../core/theme/palette.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/theme/typography.dart';
@@ -135,7 +136,7 @@ class _ExploreApiScreenState extends ConsumerState<ExploreApiScreen> {
             if (api.docsUrl.isNotEmpty)
               AppRow(
                 title: 'Docs',
-                subtitle: api.docsUrl.replaceFirst(RegExp('^https?://'), ''),
+                subtitle: Fmt.bareUrl(api.docsUrl),
                 minHeight: 60,
                 trailing: AppIconButton(
                   icon: Icons.open_in_new_rounded,

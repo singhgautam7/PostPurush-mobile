@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/api_request.dart';
 import '../../core/models/folder.dart';
 import '../../core/providers.dart';
+import '../../core/util/format.dart';
 import '../../core/widgets/app_bottom_sheet.dart';
 import '../../core/widgets/cards.dart';
 import '../../core/widgets/chips.dart';
@@ -35,7 +36,7 @@ Future<ApiRequest?> showRequestPickerSheet(
             title: r.displayName,
             subtitle: <String>[
               if (r.folderId != null) names[r.folderId] ?? 'Deleted folder',
-              r.url.replaceFirst(RegExp('^https?://'), ''),
+              Fmt.bareUrl(r.url),
             ].join(' · '),
             minHeight: 60,
             leading: MethodChip(r.method),

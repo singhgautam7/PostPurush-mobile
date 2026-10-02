@@ -55,6 +55,11 @@ abstract final class IconSpec {
   static const double small = 20;
   static const double tiny = 18;
 
+  /// The circle an icon action draws, which is Mull's: a 40dp disc with a 20dp
+  /// glyph, centred in the 48dp target. A disc the full 48 reads as a row of
+  /// buttons shouting over the title beside them.
+  static const double button = 40;
+
   /// Nav glyph and its 44dp target inside the pill.
   static const double navTarget = 44;
   static const double tapTarget = 48;

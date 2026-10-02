@@ -36,7 +36,9 @@ Future<void> showCodeExportSheet(
 
 String _subtitle(ApiRequest request, Environment? env) {
   final String name = request.displayName;
-  final String where = env == null ? 'no environment' : 'resolved with ${env.name}';
+  final String where = env == null
+      ? 'no environment'
+      : 'resolved with ${env.name}';
   return '${request.method.label} $name · $where';
 }
 
@@ -103,16 +105,10 @@ class _CodeExportBodyState extends ConsumerState<_CodeExportBody> {
             ],
           ),
         ),
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(context).height * 0.34,
-          ),
-          child: SingleChildScrollView(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: CodeBlock(source: snippet, onSurface: true),
-            ),
-          ),
+        CodeBlock(
+          source: snippet,
+          onSurface: true,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.34,
         ),
         if (secrets.isNotEmpty)
           SwitchRow(
@@ -141,7 +137,8 @@ class _CodeExportBodyState extends ConsumerState<_CodeExportBody> {
                 onPressed: () => SharePlus.instance.share(
                   ShareParams(
                     text: snippet,
-                    subject: '${widget.request.displayName} · ${_language.label}',
+                    subject:
+                        '${widget.request.displayName} · ${_language.label}',
                   ),
                 ),
               ),

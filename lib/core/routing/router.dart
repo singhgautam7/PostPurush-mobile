@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../app/nav_shell.dart';
 import '../../app/transitions.dart';
+import '../../features/workspace/workspace_controller.dart';
 import '../../features/about/about_screen.dart';
 import '../../features/analytics/analytics_screen.dart';
 import '../../features/api_docs/api_docs_screen.dart';
@@ -127,18 +130,37 @@ GoRouter buildRouter({required bool onboarded}) {
         pageBuilder: (BuildContext c, GoRouterState s) =>
             appPage<void>(state: s, child: const PrivacyScreen()),
       ),
+      GoRoute(
+        path: Routes.permissions,
+        pageBuilder: (BuildContext c, GoRouterState s) =>
+            appPage<void>(state: s, child: const PermissionsScreen()),
+      ),
       StatefulShellRoute.indexedStack(
         builder:
             (
               BuildContext context,
               GoRouterState state,
               StatefulNavigationShell shell,
-            ) => NavShell(
-              index: shell.currentIndex,
-              tabCount: shell.route.branches.length,
-              onSelect: (int i) =>
-                  shell.goBranch(i, initialLocation: i == shell.currentIndex),
-              child: shell,
+            ) => Consumer(
+              builder: (BuildContext context, WidgetRef ref, Widget? _) =>
+                  NavShell(
+                    index: shell.currentIndex,
+                    tabCount: shell.route.branches.length,
+                    onSelect: (int i) => shell.goBranch(
+                      i,
+                      initialLocation: i == shell.currentIndex,
+                    ),
+                    // New request is the app's one primary action, so it
+                    // stands on every destination rather than only on Folders.
+                    // The workspace opens on the root navigator, so composing
+                    // from Explore comes back to Explore.
+                    onAdd: () {
+                      ref.read(workspaceProvider.notifier).openBlank();
+                      context.push(Routes.workspace);
+                    },
+                    onAddLongPress: () => quickActions(context, ref),
+                    child: shell,
+                  ),
             ),
         branches: <StatefulShellBranch>[
           StatefulShellBranch(
@@ -150,6 +172,10 @@ GoRouter buildRouter({required bool onboarded}) {
                 routes: <RouteBase>[
                   GoRoute(
                     path: 'workspace',
+                    // Root, not this branch: the button that opens it stands
+                    // on every destination, and a page pushed onto branch 0
+                    // from another branch is pushed where nobody can see it.
+                    parentNavigatorKey: rootNavigatorKey,
                     pageBuilder: (BuildContext c, GoRouterState s) =>
                         appPage<void>(state: s, child: const WorkspaceScreen()),
                   ),

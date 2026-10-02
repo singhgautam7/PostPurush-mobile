@@ -107,6 +107,8 @@ class AppButton extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
+          // The Android click sound belongs to the system, not to a tool.
+          enableFeedback: false,
           onTap: onPressed,
           child: Padding(
             padding: EdgeInsets.fromLTRB(
@@ -193,6 +195,8 @@ class AddRowButton extends StatelessWidget {
       button: true,
       label: label,
       child: InkWell(
+        // The Android click sound belongs to the system, not to a tool.
+        enableFeedback: false,
         onTap: onPressed,
         child: Container(
           constraints: const BoxConstraints(minHeight: 52),
@@ -214,7 +218,7 @@ class AddRowButton extends StatelessWidget {
   }
 }
 
-/// The New request button on Collections: 56dp tall, radius 20, `primary`, the
+/// The New request button on Folders: 56dp tall, radius 20, `primary`, the
 /// one shadow besides the nav pill. Long-press keeps the quick actions.
 class PrimaryActionButton extends StatelessWidget {
   const PrimaryActionButton({
@@ -241,6 +245,8 @@ class PrimaryActionButton extends StatelessWidget {
         borderRadius: Radii.cardR,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
+          // The Android click sound belongs to the system, not to a tool.
+          enableFeedback: false,
           onTap: onPressed,
           onLongPress: onLongPress,
           child: Container(

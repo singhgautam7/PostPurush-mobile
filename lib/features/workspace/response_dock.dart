@@ -40,9 +40,14 @@ class ResponseDock extends StatelessWidget {
 
     // A send that produced nothing takes the danger well and offers a retry,
     // rather than pretending to be a response.
-    if (response != null && !response.arrived &&
+    if (response != null &&
+        !response.arrived &&
         response.failure != FailureKind.cancelled) {
-      return _FailureDock(response: response, host: tab.draft.host, onRetry: onSend);
+      return _FailureDock(
+        response: response,
+        host: tab.draft.host,
+        onRetry: onSend,
+      );
     }
 
     return Container(
@@ -55,17 +60,25 @@ class ResponseDock extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
+        // Centred: the stack only ever holds the row and a pinned hairline, so
+        // without this the row sat at the top of the dock's 64dp and the
+        // status line and Send button read as missing their top padding.
+        alignment: Alignment.center,
         children: <Widget>[
-          if (tab.sending) const Positioned(left: 0, right: 0, top: 0, child: _SendHairline()),
+          if (tab.sending)
+            const Positioned(left: 0, right: 0, top: 0, child: _SendHairline()),
           Row(
             spacing: Space.md,
             children: <Widget>[
               Expanded(
                 child: tab.sending
-                    ? _SendingLine(startedAt: tab.startedAt, host: tab.draft.host)
+                    ? _SendingLine(
+                        startedAt: tab.startedAt,
+                        host: tab.draft.host,
+                      )
                     : response == null
-                        ? _IdleLine(canSend: canSend, sentAt: tab.sentAt)
-                        : _ResultLine(response: response, onExpand: onExpand),
+                    ? _IdleLine(canSend: canSend, sentAt: tab.sentAt)
+                    : _ResultLine(response: response, onExpand: onExpand),
               ),
               if (tab.sending)
                 AppButton(
@@ -258,6 +271,8 @@ class _ResultLine extends StatelessWidget {
       arrived: response.arrived,
     );
     return InkWell(
+      // The Android click sound belongs to the system, not to a tool.
+      enableFeedback: false,
       onTap: onExpand,
       child: Row(
         spacing: Space.sm,
@@ -279,12 +294,17 @@ class _ResultLine extends StatelessWidget {
             ),
           ),
           Flexible(
-            child: Text(
-              '${Fmt.duration(response.durationMs)} · '
-              '${Fmt.bytes(response.sizeBytes)}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppType.monoLabel.copyWith(color: c.onSurfaceVariant),
+            // Scaled down rather than ellipsised: the line is two short
+            // numbers, and cutting it left "2.4…" where the unit belongs.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '${Fmt.duration(response.durationMs)} · '
+                '${Fmt.bytes(response.sizeBytes)}',
+                maxLines: 1,
+                style: AppType.monoLabel.copyWith(color: c.onSurfaceVariant),
+              ),
             ),
           ),
         ],
@@ -313,11 +333,16 @@ class _FailureDock extends StatelessWidget {
     final String title = timeout
         ? 'Timed out'
         : host.isEmpty
-            ? 'Request failed'
-            : "Couldn't reach $host";
+        ? 'Request failed'
+        : "Couldn't reach $host";
     return Container(
       constraints: const BoxConstraints(minHeight: 64),
-      padding: const EdgeInsets.fromLTRB(Space.lg, Space.sm, Space.sm, Space.sm),
+      padding: const EdgeInsets.fromLTRB(
+        Space.lg,
+        Space.sm,
+        Space.sm,
+        Space.sm,
+      ),
       decoration: BoxDecoration(
         color: c.dangerContainer,
         borderRadius: Radii.dockR,
@@ -348,9 +373,7 @@ class _FailureDock extends StatelessWidget {
                   '${response.failureDetail} · '
                   '${Fmt.elapsed(response.durationMs)}',
                   maxLines: 2,
-                  style: AppType.monoLabel.copyWith(
-                    color: c.onDangerContainer,
-                  ),
+                  style: AppType.monoLabel.copyWith(color: c.onDangerContainer),
                 ),
               ],
             ),
@@ -363,6 +386,8 @@ class _FailureDock extends StatelessWidget {
               shape: const StadiumBorder(),
               clipBehavior: Clip.antiAlias,
               child: InkWell(
+                // The Android click sound belongs to the system, not to a tool.
+                enableFeedback: false,
                 onTap: onRetry,
                 child: Container(
                   height: 48,

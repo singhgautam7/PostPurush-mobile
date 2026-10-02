@@ -123,7 +123,6 @@ class _VariablesScreenState extends ConsumerState<VariablesScreen> {
                           context.push(Routes.editEnvironment(env.id)),
                       semanticLabel: 'Edit name, icon and colour',
                     ),
-                    const SizedBox(width: Space.sm),
                     Builder(
                       builder: (BuildContext anchor) => AppIconButton(
                         icon: Icons.more_horiz_rounded,
@@ -433,6 +432,8 @@ class _VariableRow extends StatelessWidget {
     final AppColors c = context.colors;
     final bool hidden = row.secret && !revealed;
     return InkWell(
+      // The Android click sound belongs to the system, not to a tool.
+      enableFeedback: false,
       onTap: onEdit,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: Space.sm),

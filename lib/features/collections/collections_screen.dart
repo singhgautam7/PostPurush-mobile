@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,7 +17,6 @@ import '../../core/theme/tokens.dart';
 import '../../core/theme/typography.dart';
 import '../../core/util/format.dart';
 import '../../core/util/ids.dart';
-import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_header.dart';
 import '../../core/widgets/app_icon_button.dart';
 import '../../core/widgets/app_menu.dart';
@@ -49,57 +50,6 @@ class _CollectionsScreenState extends ConsumerState<CollectionsScreen> {
     _openWorkspace();
   }
 
-  Future<void> _quickActions() async {
-    final String? choice = await showAppMenu<String>(
-      context: context,
-      entries: const <AppMenuEntry<String>>[
-        AppMenuEntry<String>(
-          value: 'curl',
-          label: 'Paste cURL',
-          icon: Icons.content_paste_rounded,
-        ),
-        AppMenuEntry<String>(
-          value: 'repeat',
-          label: 'Repeat last',
-          icon: Icons.history_rounded,
-        ),
-      ],
-    );
-    if (!mounted) return;
-    switch (choice) {
-      case 'curl':
-        await _pasteCurl();
-      case 'repeat':
-        await _repeatLast();
-    }
-  }
-
-  Future<void> _pasteCurl() async {
-    final ApiRequest? parsed = await pasteCurlFromClipboard();
-    if (!mounted) return;
-    if (parsed == null) {
-      AppSnackbar.info(context, 'The clipboard does not hold a cURL command');
-      return;
-    }
-    ref.read(workspaceProvider.notifier).openDraft(parsed);
-    _openWorkspace();
-  }
-
-  Future<void> _repeatLast() async {
-    final List<ApiRequest> all = ref.read(requestsProvider).value ??
-        const <ApiRequest>[];
-    if (all.isEmpty) {
-      AppSnackbar.info(context, 'Nothing to repeat yet');
-      return;
-    }
-    final ApiRequest latest = all.reduce(
-      (ApiRequest a, ApiRequest b) =>
-          a.updatedAt.isAfter(b.updatedAt) ? a : b,
-    );
-    ref.read(workspaceProvider.notifier).open(latest);
-    _openWorkspace();
-  }
-
   @override
   Widget build(BuildContext context) {
     final AsyncValue<List<Folder>> folders = ref.watch(foldersProvider);
@@ -112,7 +62,8 @@ class _CollectionsScreenState extends ConsumerState<CollectionsScreen> {
     // An open request counts: a draft from Explore or a cURL paste has nowhere
     // else to be listed, and showing the first-run state over the top of one
     // loses it.
-    final bool empty = !loading &&
+    final bool empty =
+        !loading &&
         folderList.isEmpty &&
         requestList.isEmpty &&
         workspace.tabs.isEmpty;
@@ -127,15 +78,16 @@ class _CollectionsScreenState extends ConsumerState<CollectionsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   AppHeader(
-                    title: 'Collections',
+                    title: 'Folders',
                     collapsed: collapsed,
                     actions: <Widget>[
-                      if (!empty)
+                      if (!empty) ...<Widget>[
                         AppIconButton(
                           icon: Icons.create_new_folder_rounded,
                           onPressed: () => showFolderSheet(context, ref),
                           semanticLabel: 'New folder',
                         ),
+                      ],
                       Builder(
                         builder: (BuildContext anchor) => AppIconButton(
                           icon: Icons.more_horiz_rounded,
@@ -178,25 +130,12 @@ class _CollectionsScreenState extends ConsumerState<CollectionsScreen> {
                             },
                             onCloseTab: (String id) =>
                                 ref.read(workspaceProvider.notifier).close(id),
-                            onShowOpen: () => showOpenRequestsSheet(context, ref),
+                            onShowOpen: () =>
+                                showOpenRequestsSheet(context, ref),
                           ),
                   ),
                 ],
               ),
-              if (!empty)
-                Positioned(
-                  right: Space.screen,
-                  bottom: NavSpec.height + NavSpec.bottom + Space.lg,
-                  child: SafeArea(
-                    top: false,
-                    child: PrimaryActionButton(
-                      label: 'New request',
-                      icon: Icons.add_rounded,
-                      onPressed: _newRequest,
-                      onLongPress: _quickActions,
-                    ),
-                  ),
-                ),
             ],
           ),
         ),
@@ -209,14 +148,14 @@ class _CollectionsScreenState extends ConsumerState<CollectionsScreen> {
       context: anchor,
       entries: const <AppMenuEntry<String>>[
         AppMenuEntry<String>(
+          value: 'new',
+          label: 'New request',
+          icon: Icons.add_rounded,
+        ),
+        AppMenuEntry<String>(
           value: 'curl',
           label: 'Paste cURL',
           icon: Icons.content_paste_rounded,
-        ),
-        AppMenuEntry<String>(
-          value: 'folder',
-          label: 'New folder',
-          icon: Icons.create_new_folder_rounded,
         ),
         AppMenuEntry<String>(
           value: 'docs',
@@ -227,10 +166,10 @@ class _CollectionsScreenState extends ConsumerState<CollectionsScreen> {
     );
     if (!mounted) return;
     switch (choice) {
+      case 'new':
+        _newRequest();
       case 'curl':
-        await _pasteCurl();
-      case 'folder':
-        await showFolderSheet(context, ref);
+        await pasteCurlIntoWorkspace(context, ref);
       case 'docs':
         if (mounted) await context.push(Routes.apiDocs);
     }
@@ -264,75 +203,111 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Folder> top = <Folder>[
-      for (final Folder f in folders) if (f.parentId == null) f,
-    ];
-    final List<ApiRequest> unfiled = <ApiRequest>[
-      for (final ApiRequest r in requests) if (r.folderId == null) r,
-    ];
+    // One pass over each list, then every row below is a map lookup.
+    final FolderIndex index = FolderIndex.of(folders, requests);
+    final List<Folder> top = index.roots;
+    final List<ApiRequest> unfiled = index.unfiled;
+    final bool empty = folders.isEmpty && requests.isEmpty;
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        Space.screen,
-        Space.md,
-        Space.screen,
-        Space.bottomSafe + 56,
-      ),
-      children: <Widget>[
-        if (workspace.tabs.isNotEmpty) ...<Widget>[
-          SectionHeader(
-            label: 'Open · ${workspace.tabs.length}',
-            note: 'swipe up to close',
+    return CustomScrollView(
+      slivers: <Widget>[
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            Space.screen,
+            Space.md,
+            Space.screen,
+            0,
           ),
-          const SizedBox(height: Space.row),
-          _OpenStrip(
-            workspace: workspace,
-            onFocus: onFocusTab,
-            onClose: onCloseTab,
-            onShowAll: onShowOpen,
-          ),
-          const SizedBox(height: Space.section),
-        ],
-        if (loading && folders.isEmpty && requests.isEmpty)
-          const Delayed(
-            child: RowGroup(
-              children: <Widget>[SkeletonRow(), SkeletonRow(titleFactor: 0.45)],
-            ),
-          )
-        else ...<Widget>[
-          if (unfiled.isNotEmpty) ...<Widget>[
-            SectionHeader(
-              label: 'No folder · ${unfiled.length}',
-              note: 'top level',
-            ),
-            const SizedBox(height: Space.row),
-            RowGroup(
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                for (final ApiRequest r in unfiled)
-                  _RequestRow(request: r, onTap: () => onOpenRequest(r)),
+                if (workspace.tabs.isNotEmpty) ...<Widget>[
+                  SectionHeader(
+                    label: 'Open · ${workspace.tabs.length}',
+                    note: 'swipe up to close',
+                  ),
+                  const SizedBox(height: Space.row),
+                  _OpenStrip(
+                    workspace: workspace,
+                    onFocus: onFocusTab,
+                    onClose: onCloseTab,
+                    onShowAll: onShowOpen,
+                  ),
+                  const SizedBox(height: Space.section),
+                ],
+                if (loading && empty)
+                  const Delayed(
+                    child: RowGroup(
+                      children: <Widget>[
+                        SkeletonRow(),
+                        SkeletonRow(titleFactor: 0.45),
+                      ],
+                    ),
+                  ),
+                if (unfiled.isNotEmpty)
+                  SectionHeader(
+                    label: 'No folder · ${unfiled.length}',
+                    note: 'top level',
+                  ),
+                if (unfiled.isNotEmpty) const SizedBox(height: Space.row),
               ],
             ),
-            const SizedBox(height: Space.section),
-          ],
-          if (top.isNotEmpty) ...<Widget>[
-            SectionHeader(
-              label: 'Folders · ${top.length}',
-              note: 'tap to open',
+          ),
+        ),
+        // Lazy from here: a long list of saved requests used to be built in
+        // full on every emission of the folders and requests streams.
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: Space.screen),
+          sliver: SliverRowGroup(
+            itemCount: unfiled.length,
+            itemBuilder: (BuildContext context, int i) => _RequestRow(
+              request: unfiled[i],
+              onTap: () => onOpenRequest(unfiled[i]),
             ),
-            const SizedBox(height: Space.row),
-            for (final Folder folder in top) ...<Widget>[
-              _FolderBlock(
-                folder: folder,
-                folders: folders,
-                requests: requests,
+          ),
+        ),
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(
+            Space.screen,
+            unfiled.isEmpty ? 0 : Space.section,
+            Space.screen,
+            0,
+          ),
+          sliver: SliverToBoxAdapter(
+            child: top.isEmpty
+                ? const SizedBox.shrink()
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      SectionHeader(
+                        label: 'Folders · ${top.length}',
+                        note: 'tap to open',
+                      ),
+                      const SizedBox(height: Space.row),
+                    ],
+                  ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: Space.screen),
+          sliver: SliverList.builder(
+            itemCount: top.length,
+            itemBuilder: (BuildContext context, int i) => Padding(
+              padding: const EdgeInsets.only(bottom: Space.row),
+              child: _FolderBlock(
+                folder: top[i],
+                index: index,
                 expanded: expanded,
                 onToggle: onToggleFolder,
                 onOpenRequest: onOpenRequest,
               ),
-              const SizedBox(height: Space.row),
-            ],
-          ],
-        ],
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: SizedBox(height: Space.bottomSafe + 56),
+        ),
       ],
     );
   }
@@ -343,16 +318,14 @@ class _Body extends StatelessWidget {
 class _FolderBlock extends StatelessWidget {
   const _FolderBlock({
     required this.folder,
-    required this.folders,
-    required this.requests,
+    required this.index,
     required this.expanded,
     required this.onToggle,
     required this.onOpenRequest,
   });
 
   final Folder folder;
-  final List<Folder> folders;
-  final List<ApiRequest> requests;
+  final FolderIndex index;
   final Set<String> expanded;
   final ValueChanged<String> onToggle;
   final ValueChanged<ApiRequest> onOpenRequest;
@@ -361,17 +334,9 @@ class _FolderBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppColors c = context.colors;
     final bool open = expanded.contains(folder.id);
-    final int count = CollectionsRepository.countIn(
-      folder.id,
-      folders,
-      requests,
-    );
-    final List<ApiRequest> own = <ApiRequest>[
-      for (final ApiRequest r in requests) if (r.folderId == folder.id) r,
-    ];
-    final List<Folder> children = <Folder>[
-      for (final Folder f in folders) if (f.parentId == folder.id) f,
-    ];
+    final int count = index.totalIn(folder.id);
+    final List<ApiRequest> own = index.requestsOf(folder.id);
+    final List<Folder> children = index.childrenOf(folder.id);
 
     final Widget head = AppRow(
       title: folder.name,
@@ -397,8 +362,7 @@ class _FolderBlock extends StatelessWidget {
         for (final Folder child in children)
           _SubfolderRow(
             folder: child,
-            folders: folders,
-            requests: requests,
+            index: index,
             expanded: expanded,
             onToggle: onToggle,
             onOpenRequest: onOpenRequest,
@@ -430,16 +394,14 @@ class _FolderBlock extends StatelessWidget {
 class _SubfolderRow extends StatelessWidget {
   const _SubfolderRow({
     required this.folder,
-    required this.folders,
-    required this.requests,
+    required this.index,
     required this.expanded,
     required this.onToggle,
     required this.onOpenRequest,
   });
 
   final Folder folder;
-  final List<Folder> folders;
-  final List<ApiRequest> requests;
+  final FolderIndex index;
   final Set<String> expanded;
   final ValueChanged<String> onToggle;
   final ValueChanged<ApiRequest> onOpenRequest;
@@ -448,11 +410,7 @@ class _SubfolderRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppColors c = context.colors;
     final bool open = expanded.contains(folder.id);
-    final int count = CollectionsRepository.countIn(
-      folder.id,
-      folders,
-      requests,
-    );
+    final int count = index.totalIn(folder.id);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -473,19 +431,18 @@ class _SubfolderRow extends StatelessWidget {
           onTap: () => onToggle(folder.id),
         ),
         if (open)
-          for (final ApiRequest r in requests)
-            if (r.folderId == folder.id)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Divider(color: c.divider, height: 1),
-                  _RequestRow(
-                    request: r,
-                    indent: Space.xxl,
-                    onTap: () => onOpenRequest(r),
-                  ),
-                ],
-              ),
+          for (final ApiRequest r in index.requestsOf(folder.id))
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Divider(color: c.divider, height: 1),
+                _RequestRow(
+                  request: r,
+                  indent: Space.xxl,
+                  onTap: () => onOpenRequest(r),
+                ),
+              ],
+            ),
       ],
     );
   }
@@ -506,6 +463,8 @@ class _RequestRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppColors c = context.colors;
     return InkWell(
+      // The Android click sound belongs to the system, not to a tool.
+      enableFeedback: false,
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.fromLTRB(Space.lg + indent, 11, Space.lg, 11),
@@ -525,7 +484,7 @@ class _RequestRow extends StatelessWidget {
                     style: AppType.titleMedium.copyWith(color: c.onSurface),
                   ),
                   Text(
-                    _shortUrl(request.url),
+                    Fmt.bareUrl(request.url),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppType.monoLabel.copyWith(
@@ -540,10 +499,6 @@ class _RequestRow extends StatelessWidget {
       ),
     );
   }
-
-  /// Drops the scheme, which is never the interesting part of a saved request.
-  static String _shortUrl(String url) =>
-      url.replaceFirst(RegExp('^https?://'), '');
 }
 
 /// The Open strip: the board's horizontal run of 196dp cards that bleeds off
@@ -654,6 +609,59 @@ class _OpenStrip extends StatelessWidget {
   }
 }
 
+/// The FAB's long press, from wherever the FAB happens to live.
+Future<void> quickActions(BuildContext context, WidgetRef ref) async {
+  final String? choice = await showAppMenu<String>(
+    context: context,
+    entries: const <AppMenuEntry<String>>[
+      AppMenuEntry<String>(
+        value: 'curl',
+        label: 'Paste cURL',
+        icon: Icons.content_paste_rounded,
+      ),
+      AppMenuEntry<String>(
+        value: 'repeat',
+        label: 'Repeat last',
+        icon: Icons.history_rounded,
+      ),
+    ],
+  );
+  if (!context.mounted) return;
+  switch (choice) {
+    case 'curl':
+      await pasteCurlIntoWorkspace(context, ref);
+    case 'repeat':
+      await repeatLastRequest(context, ref);
+  }
+}
+
+/// Opens whatever cURL command is on the clipboard, or says there is none.
+Future<void> pasteCurlIntoWorkspace(BuildContext context, WidgetRef ref) async {
+  final ApiRequest? parsed = await pasteCurlFromClipboard();
+  if (!context.mounted) return;
+  if (parsed == null) {
+    AppSnackbar.info(context, 'The clipboard does not hold a cURL command');
+    return;
+  }
+  ref.read(workspaceProvider.notifier).openDraft(parsed);
+  if (context.mounted) unawaited(context.push<void>(Routes.workspace));
+}
+
+/// Reopens the request that was edited most recently.
+Future<void> repeatLastRequest(BuildContext context, WidgetRef ref) async {
+  final List<ApiRequest> all =
+      ref.read(requestsProvider).value ?? const <ApiRequest>[];
+  if (all.isEmpty) {
+    AppSnackbar.info(context, 'Nothing to repeat yet');
+    return;
+  }
+  final ApiRequest latest = all.reduce(
+    (ApiRequest a, ApiRequest b) => a.updatedAt.isAfter(b.updatedAt) ? a : b,
+  );
+  ref.read(workspaceProvider.notifier).open(latest);
+  if (context.mounted) unawaited(context.push<void>(Routes.workspace));
+}
+
 /// Reads the clipboard and parses a cURL command out of it.
 Future<ApiRequest?> pasteCurlFromClipboard() async {
   final String text = await readClipboard();
@@ -668,7 +676,7 @@ Future<String> readClipboard() async {
   return data?.text ?? '';
 }
 
-/// A count line for the More screen's Collections row.
+/// A count line for the More screen's Folders row.
 String collectionsSummary(List<Folder> folders, List<ApiRequest> requests) =>
     '${Fmt.count(requests.length, 'request')} · '
     '${Fmt.count(folders.length, 'folder')}';

@@ -83,7 +83,7 @@ class _DocViewScreenState extends ConsumerState<DocViewScreen> {
               AppHeader(title: 'API docs', onBack: () => context.pop()),
               const Expanded(
                 child: ErrorStateView(
-                  message: 'That collection is no longer here.',
+                  message: 'That folder is no longer here.',
                 ),
               ),
             ],

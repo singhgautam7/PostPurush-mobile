@@ -10,6 +10,7 @@ import '../../core/models/history_entry.dart';
 import '../../core/providers.dart';
 import '../../core/routing/routes.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/util/format.dart';
 import '../../core/theme/palette.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/theme/typography.dart';
@@ -49,16 +50,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final String q = _query.text.trim().toLowerCase();
 
     final List<ApiRequest> requests = <ApiRequest>[
-      for (final ApiRequest r in ref.watch(requestsProvider).value ??
-          const <ApiRequest>[])
+      for (final ApiRequest r
+          in ref.watch(requestsProvider).value ?? const <ApiRequest>[])
         if (q.isEmpty ||
             r.name.toLowerCase().contains(q) ||
             r.url.toLowerCase().contains(q))
           r,
     ];
     final List<HistoryEntry> history = <HistoryEntry>[
-      for (final HistoryEntry e in ref.watch(historyProvider).value ??
-          const <HistoryEntry>[])
+      for (final HistoryEntry e
+          in ref.watch(historyProvider).value ?? const <HistoryEntry>[])
         if (q.isEmpty ||
             e.name.toLowerCase().contains(q) ||
             e.path.toLowerCase().contains(q) ||
@@ -66,14 +67,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           e,
     ];
     final List<ExploreApi> apis = <ExploreApi>[
-      for (final ExploreApi api in ref.watch(exploreApisProvider).value ??
-          const <ExploreApi>[])
+      for (final ExploreApi api
+          in ref.watch(exploreApisProvider).value ?? const <ExploreApi>[])
         if (q.isNotEmpty && api.matches(q)) api,
     ];
 
     final Map<String, String> folderNames = <String, String>{
-      for (final Folder f in ref.watch(foldersProvider).value ??
-          const <Folder>[])
+      for (final Folder f
+          in ref.watch(foldersProvider).value ?? const <Folder>[])
         f.id: f.name,
     };
 
@@ -157,68 +158,58 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 : 'No saved request matches "$q".',
           );
         }
-        return ListView(
-          padding: const EdgeInsets.fromLTRB(
-            Space.screen,
-            0,
-            Space.screen,
-            Space.bottomSafe,
-          ),
-          children: <Widget>[
-            RowGroup(
-              children: <Widget>[
-                for (final ApiRequest r in requests)
-                  InkWell(
-                    onTap: () {
-                      ref.read(workspaceProvider.notifier).open(r);
-                      context.go(Routes.workspace);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Space.lg,
-                        vertical: Space.md,
-                      ),
-                      child: Row(
-                        spacing: Space.md,
+        return _Results(
+          itemCount: requests.length,
+          itemBuilder: (BuildContext context, int i) {
+            final ApiRequest r = requests[i];
+            return InkWell(
+              // The Android click sound belongs to the system, not to a tool.
+              enableFeedback: false,
+              onTap: () {
+                ref.read(workspaceProvider.notifier).open(r);
+                context.go(Routes.workspace);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Space.lg,
+                  vertical: Space.md,
+                ),
+                child: Row(
+                  spacing: Space.md,
+                  children: <Widget>[
+                    MethodChip(r.method),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 3,
                         children: <Widget>[
-                          MethodChip(r.method),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 3,
-                              children: <Widget>[
-                                Text(
-                                  r.displayName,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppType.titleMedium.copyWith(
-                                    color: c.onSurface,
-                                  ),
-                                ),
-                                _Highlighted(
-                                  text: r.url.replaceFirst(
-                                    RegExp('^https?://'),
-                                    '',
-                                  ),
-                                  query: q,
-                                ),
-                                if (r.folderId != null)
-                                  Text(
-                                    folderNames[r.folderId] ?? 'Deleted folder',
-                                    style: AppType.monoLabel.copyWith(
-                                      color: c.onSurfaceVariant,
-                                    ),
-                                  ),
-                              ],
+                          Text(
+                            r.displayName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppType.titleMedium.copyWith(
+                              color: c.onSurface,
                             ),
                           ),
+                          _Highlighted(
+                            text: Fmt.bareUrl(r.url),
+                            query: q,
+                          ),
+                          if (r.folderId != null)
+                            Text(
+                              folderNames[r.folderId] ?? 'Deleted folder',
+                              style: AppType.monoLabel.copyWith(
+                                color: c.onSurfaceVariant,
+                              ),
+                            ),
                         ],
                       ),
                     ),
-                  ),
-              ],
-            ),
-          ],
+                  ],
+                ),
+              ),
+            );
+          },
         );
       case _Scope.history:
         if (history.isEmpty) {
@@ -228,47 +219,49 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 : 'Nothing in history matches "$q".',
           );
         }
-        return ListView(
-          padding: const EdgeInsets.fromLTRB(
-            Space.screen,
-            0,
-            Space.screen,
-            Space.bottomSafe,
+        // Capped at 60 before, because every row was built at once. Lazy now,
+        // so the whole match set can stand.
+        return _Results(
+          itemCount: history.length,
+          itemBuilder: (BuildContext context, int i) => HistoryRow(
+            entry: history[i],
+            onTap: () {
+              ref.read(workspaceProvider.notifier).openFromHistory(history[i]);
+              context.go(Routes.workspace);
+            },
           ),
-          children: <Widget>[
-            RowGroup(
-              children: <Widget>[
-                for (final HistoryEntry e in history.take(60))
-                  HistoryRow(
-                    entry: e,
-                    onTap: () {
-                      ref.read(workspaceProvider.notifier).openFromHistory(e);
-                      context.go(Routes.workspace);
-                    },
-                  ),
-              ],
-            ),
-          ],
         );
       case _Scope.apis:
         if (apis.isEmpty) return _Hint(text: 'No API matches "$q".');
-        return ListView(
-          padding: const EdgeInsets.fromLTRB(
-            Space.screen,
-            0,
-            Space.screen,
-            Space.bottomSafe,
-          ),
-          children: <Widget>[
-            RowGroup(
-              children: <Widget>[
-                for (final ExploreApi api in apis.take(60)) ApiRow(api: api),
-              ],
-            ),
-          ],
+        return _Results(
+          itemCount: apis.length,
+          itemBuilder: (BuildContext context, int i) => ApiRow(api: apis[i]),
         );
     }
   }
+}
+
+/// The one shape every scope's results take: the group's outline and
+/// hairlines, built a screenful at a time.
+///
+/// It was a Column of every match inside a ListView, which built hundreds of
+/// rows on each keystroke and is why two of the scopes used to stop at 60.
+class _Results extends StatelessWidget {
+  const _Results({required this.itemCount, required this.itemBuilder});
+
+  final int itemCount;
+  final NullableIndexedWidgetBuilder itemBuilder;
+
+  @override
+  Widget build(BuildContext context) => CustomScrollView(
+    slivers: <Widget>[
+      SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: Space.screen),
+        sliver: SliverRowGroup(itemCount: itemCount, itemBuilder: itemBuilder),
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: Space.bottomSafe)),
+    ],
+  );
 }
 
 /// A match tinted the way the board tints it: `primaryContainer` behind the run
@@ -287,7 +280,12 @@ class _Highlighted extends StatelessWidget {
       color: c.onSurfaceVariant,
     );
     if (query.isEmpty) {
-      return Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: base);
+      return Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: base,
+      );
     }
     final String lower = text.toLowerCase();
     final List<InlineSpan> spans = <InlineSpan>[];

@@ -28,6 +28,8 @@ class MethodPicker extends StatelessWidget {
         borderRadius: Radii.chipR,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
+          // The Android click sound belongs to the system, not to a tool.
+          enableFeedback: false,
           onTap: onTap,
           child: Container(
             height: 36,

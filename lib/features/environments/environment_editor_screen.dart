@@ -244,6 +244,8 @@ class _IconGrid extends StatelessWidget {
             selected: icon == current,
             label: icon.name,
             child: InkWell(
+              // The Android click sound belongs to the system, not to a tool.
+              enableFeedback: false,
               onTap: () => Navigator.of(context).pop(icon),
               borderRadius: Radii.thumbR,
               child: Container(

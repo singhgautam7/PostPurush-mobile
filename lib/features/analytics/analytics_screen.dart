@@ -222,7 +222,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                                   width: 200,
                                   child: SegmentedToggle<_By>(
                                     options: const <(_By, String)>[
-                                      (_By.collection, 'Collection'),
+                                      (_By.collection, 'Folder'),
                                       (_By.endpoint, 'Endpoint'),
                                     ],
                                     selected: _by,

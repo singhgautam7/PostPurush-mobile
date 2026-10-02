@@ -66,6 +66,18 @@ abstract final class AppTheme {
       textTheme: text,
       fontFamily: AppType.sans,
       splashFactory: InkSparkle.splashFactory,
+      // No tap sound anywhere. Every control the app draws is an Ink widget
+      // with `enableFeedback: false`; these cover the Material widgets that
+      // read the feedback setting off the theme instead, so a dialog button
+      // or a menu row cannot click when nothing else does.
+      textButtonTheme: const TextButtonThemeData(
+        style: ButtonStyle(enableFeedback: false),
+      ),
+      iconButtonTheme: const IconButtonThemeData(
+        style: ButtonStyle(enableFeedback: false),
+      ),
+      listTileTheme: const ListTileThemeData(enableFeedback: false),
+      popupMenuTheme: const PopupMenuThemeData(enableFeedback: false),
       extensions: <ThemeExtension<dynamic>>[c],
       // Depth lives in 1px outlines. Material's tonal elevation is off.
       cardTheme: CardThemeData(

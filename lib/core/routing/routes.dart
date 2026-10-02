@@ -38,4 +38,5 @@ abstract final class Routes {
   static const String defaultHeaders = '/settings/headers';
   static const String about = '/about';
   static const String privacy = '/privacy';
+  static const String permissions = '/permissions';
 }

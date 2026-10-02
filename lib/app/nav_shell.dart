@@ -28,6 +28,8 @@ class NavShell extends ConsumerStatefulWidget {
     required this.index,
     required this.onSelect,
     this.tabCount = 4,
+    this.onAdd,
+    this.onAddLongPress,
     super.key,
   });
 
@@ -35,6 +37,11 @@ class NavShell extends ConsumerStatefulWidget {
   final int index;
   final ValueChanged<int> onSelect;
   final int tabCount;
+
+  /// When set, a circular action button sits beside the pill, on the same line.
+  /// Null on destinations that have no primary action.
+  final VoidCallback? onAdd;
+  final VoidCallback? onAddLongPress;
 
   @override
   ConsumerState<NavShell> createState() => _NavShellState();
@@ -172,11 +179,20 @@ class _NavShellState extends ConsumerState<NavShell>
                     },
                     child: SafeArea(
                       top: false,
-                      child: Center(
-                        child: NavPill(
-                          index: widget.index,
-                          onSelect: widget.onSelect,
-                        ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: Space.row,
+                        children: <Widget>[
+                          NavPill(
+                            index: widget.index,
+                            onSelect: widget.onSelect,
+                          ),
+                          if (widget.onAdd != null)
+                            NavFab(
+                              onTap: widget.onAdd!,
+                              onLongPress: widget.onAddLongPress,
+                            ),
+                        ],
                       ),
                     ),
                   ),
